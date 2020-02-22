@@ -1,8 +1,8 @@
 package kubeadmclient
 
 import (
-	"github.com/debarshibasak/kubekray/kubectl"
-	"github.com/pkg/errors"
+	"errors"
+	"github.com/debarshibasak/go-kubeadminclient/kubectl"
 	"log"
 )
 

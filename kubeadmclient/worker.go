@@ -1,7 +1,7 @@
 package kubeadmclient
 
 import (
-	"github.com/debarshibasak/kubekray/sshclient"
+	"github.com/debarshibasak/go-kubeadminclient/sshclient"
 	"time"
 )
 

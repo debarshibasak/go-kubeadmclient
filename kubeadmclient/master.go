@@ -3,7 +3,7 @@ package kubeadmclient
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/debarshibasak/kubekray/sshclient"
+	"github.com/debarshibasak/go-kubeadminclient/sshclient"
 	"time"
 )
 

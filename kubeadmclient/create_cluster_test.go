@@ -1,7 +1,7 @@
 package kubeadmclient_test
 
 import (
-	"github.com/debarshibasak/kubekray/kubeadmclient"
+	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient"
 	"log"
 	"testing"
 )

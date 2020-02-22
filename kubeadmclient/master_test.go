@@ -2,7 +2,7 @@ package kubeadmclient
 
 import (
 	"fmt"
-	"github.com/debarshibasak/kubekray/kubectl"
+	"github.com/debarshibasak/go-kubeadminclient/kubectl"
 	"log"
 	"testing"
 )
