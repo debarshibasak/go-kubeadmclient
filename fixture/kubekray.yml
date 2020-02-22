@@ -1,0 +1,17 @@
+hosts:
+  master:
+    - 192.168.1.11
+    - 192.168.1.11
+    - 192.168.1.11
+  nodes:
+    - 192.168.1.11
+    - 192.168.1.11
+    - 192.168.1.11
+    - 192.168.1.11
+key: /private.key
+user: ubuntu
+cni: flannel
+csi: rook-ceph
+ingress: traefik
+podCIDR: 192.168.0.0/16
+serviceCIDR:

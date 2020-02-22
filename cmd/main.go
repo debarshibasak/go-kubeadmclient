@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/debarshibasak/kubekray/kubeadmclient"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -27,10 +26,8 @@ func main() {
 		Usage: "run the manifest",
 		Action: func(c *cli.Context) error {
 
-			ostype := c.String("ostype")
 			username := c.String("username")
 
-			fmt.Println(ostype)
 			d, err := ioutil.ReadFile("host.env")
 			if err != nil {
 				log.Fatal(err)
@@ -38,7 +35,7 @@ func main() {
 
 			hosts := strings.Split(string(d), "\n")
 
-			masterNode := kubeadmclient.NewMasterNode(username, hosts[0], ostype, "")
+			masterNode := kubeadmclient.NewMasterNode(username, hosts[0], "")
 			if err := masterNode.Install(); err != nil {
 				log.Println("error while installing master")
 				log.Fatal(err)
@@ -57,7 +54,7 @@ func main() {
 			}
 
 			for _, host := range hosts[1:] {
-				workerNode := kubeadmclient.NewWorkerNode(username, host, ostype, "")
+				workerNode := kubeadmclient.NewWorkerNode(username, host, "")
 				workerNode.SetToken(token)
 				if err := workerNode.Install(); err != nil {
 					log.Println("error while installing master")

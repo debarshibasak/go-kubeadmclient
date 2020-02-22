@@ -10,7 +10,7 @@ import (
 )
 
 type SshConnection struct {
-	timeout     time.Duration
+	Timeout     time.Duration
 	Username    string
 	IP          string
 	KeyLocation string
@@ -19,6 +19,12 @@ type SshConnection struct {
 func (sh *SshConnection) Collect(cmd string) (string, error) {
 	var signer ssh.Signer
 	var config *ssh.ClientConfig
+
+	timeout := sh.Timeout
+
+	if timeout == 0 {
+		timeout = 5*time.Minute
+	}
 
 	if sh.KeyLocation != "" {
 		d, err := ioutil.ReadFile(sh.KeyLocation)
@@ -33,7 +39,7 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 
 		config = &ssh.ClientConfig{
 			User:    sh.Username,
-			Timeout: 5 * time.Minute,
+			Timeout: timeout,
 			Auth:    []ssh.AuthMethod{ssh.PublicKeys(signer)},
 			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 				return nil
@@ -42,7 +48,7 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 	} else {
 		config = &ssh.ClientConfig{
 			User:    sh.Username,
-			Timeout: 5 * time.Minute,
+			Timeout: timeout,
 			Auth:    []ssh.AuthMethod{ssh.PublicKeys()},
 			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 				return nil
@@ -76,6 +82,12 @@ func (sh *SshConnection) Run(cmd []string) error {
 	var signer ssh.Signer
 	var config *ssh.ClientConfig
 
+	timeout := sh.Timeout
+
+	if timeout == 0 {
+		timeout = 5*time.Minute
+	}
+
 	if sh.KeyLocation != "" {
 		d, err := ioutil.ReadFile(sh.KeyLocation)
 		if err != nil {
@@ -89,7 +101,7 @@ func (sh *SshConnection) Run(cmd []string) error {
 
 		config = &ssh.ClientConfig{
 			User:    sh.Username,
-			Timeout: 5 * time.Minute,
+			Timeout: timeout,
 			Auth:    []ssh.AuthMethod{ssh.PublicKeys(signer)},
 			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 				return nil
@@ -98,7 +110,7 @@ func (sh *SshConnection) Run(cmd []string) error {
 	} else {
 		config = &ssh.ClientConfig{
 			User:    sh.Username,
-			Timeout: 5 * time.Minute,
+			Timeout: timeout,
 			Auth:    []ssh.AuthMethod{ssh.PublicKeys()},
 			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 				return nil
