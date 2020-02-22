@@ -11,14 +11,24 @@ func TestKubeadm_CreateCluster(t *testing.T) {
 	 k := kubeadmclient.Kubeadm{
 
 	 	MasterNodes:[]*kubeadmclient.MasterNode{
-			kubeadmclient.NewMasterNode("ubuntu", "", ""),
-			kubeadmclient.NewMasterNode("ubuntu", "", ""),
+			kubeadmclient.NewMasterNode(
+				"ubuntu",
+				"",
+				""),
+			kubeadmclient.NewMasterNode(
+				"ubuntu",
+				"",
+				""),
 			kubeadmclient.NewMasterNode("ubuntu", "", ""),
 		},
 
 		 WorkerNodes:[]*kubeadmclient.WorkerNode{
+			 kubeadmclient.NewWorkerNode(
+			 	"ubuntu",
+			 	"",
+			 	"",
+			 ),
 			 kubeadmclient.NewWorkerNode("ubuntu", "", ""),
-			 kubeadmclient.NewWorkerNode("ubun 	tu", "", ""),
 			 kubeadmclient.NewWorkerNode("ubuntu", "", ""),
 		 },
 

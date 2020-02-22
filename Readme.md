@@ -1,10 +1,10 @@
 # go-kubeadminclient
 
-Golang sdk for creating kubernetes clusters and kubectl. The library automatically detects the operating system 
+Golang SDK for creating kubernetes clusters and kubectl. The library automatically detects the operating system 
 and then creates the cluster for that particular os.
 
 
-Create Cluster With code. For example:
+Create a NonHA Cluster With code. For example:
 
 ```
 package main
@@ -40,7 +40,8 @@ func main(){
 }
 ```
 
-For creating master node:
+
+You can also create individual master and workers using the SDK too. For example, to create master node:
 
 ```
 masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/home/debarshibasak/.ssh/id_rsa")
@@ -50,7 +51,7 @@ if err := masterNode.Install(); err != nil {
 
 ```
 
-Fetch kubeconfig
+To Fetch kubeconfig
 
 ```
 kubeconfig, err := masterNode.GetKubeConfig()
