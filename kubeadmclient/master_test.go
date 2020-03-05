@@ -11,7 +11,7 @@ func TestCreateCluster(t *testing.T) {
 
 	log.Println("starting master node creation")
 	masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/Users/debarshibasak/.ssh/id_rsa")
-	if err := masterNode.Install(); err != nil {
+	if err := masterNode.Install(false,nil); err != nil {
 		log.Fatal(err)
 	}
 

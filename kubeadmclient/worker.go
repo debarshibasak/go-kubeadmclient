@@ -2,6 +2,7 @@ package kubeadmclient
 
 import (
 	"github.com/debarshibasak/go-kubeadminclient/sshclient"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -18,17 +19,12 @@ func NewWorkerNode(username string,
 			username:           username,
 			ipOrHost:           ipOrHost,
 			privateKeyLocation: privateKeyLocation,
+			clientID: uuid.New().String(),
 		},
 	}
 }
 
 func (n *WorkerNode) Install(joinCommand string) error {
-
-	sh := sshclient.SshConnection{
-		Username:    n.username,
-		IP:          n.ipOrHost,
-		KeyLocation: n.privateKeyLocation,
-	}
 
 	cmds := []string{
 		"sudo apt-get update",
@@ -55,7 +51,7 @@ EOF
 
 	}
 
-	if err := sh.Run(cmds); err != nil {
+	if err := n.sshClientWithTimeout(30*time.Minute).Run(cmds); err != nil {
 		return err
 	}
 

@@ -11,6 +11,8 @@ type Node struct {
 	ipOrHost           string
 	osType             string
 	privateKeyLocation string
+	verboseMode        bool
+	clientID           string
 }
 
 func (n *Node) determineOS() string {
@@ -41,6 +43,8 @@ func (n *Node) sshClient() *sshclient.SshConnection {
 		Username:    n.username,
 		IP:          n.ipOrHost,
 		KeyLocation: n.privateKeyLocation,
+		VerboseMode: n.verboseMode,
+		ClientID:    n.clientID,
 	}
 }
 
@@ -49,7 +53,7 @@ func (n *Node) sshClientWithTimeout(duration time.Duration) *sshclient.SshConnec
 		Username:    n.username,
 		IP:          n.ipOrHost,
 		KeyLocation: n.privateKeyLocation,
-		Timeout: duration,
-
+		VerboseMode: n.verboseMode,
+		Timeout:     duration,
 	}
 }

@@ -45,7 +45,7 @@ You can also create individual master and workers using the SDK too. For example
 
 ```
 masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/home/debarshibasak/.ssh/id_rsa")
-if err := masterNode.Install(); err != nil {
+if err := masterNode.Install(false); err != nil {
     log.Fatal(err)
 }
 

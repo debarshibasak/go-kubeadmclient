@@ -2,10 +2,13 @@ package sshclient
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
 	"net"
+	"os"
+	"os/exec"
 	"time"
 )
 
@@ -14,6 +17,8 @@ type SshConnection struct {
 	Username    string
 	IP          string
 	KeyLocation string
+	VerboseMode bool
+	ClientID    string
 }
 
 func (sh *SshConnection) Collect(cmd string) (string, error) {
@@ -23,7 +28,7 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 	timeout := sh.Timeout
 
 	if timeout == 0 {
-		timeout = 5*time.Minute
+		timeout = 5 * time.Minute
 	}
 
 	if sh.KeyLocation != "" {
@@ -77,6 +82,49 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 
 }
 
+func (sh *SshConnection) ScpToWithData(data []byte, destination string) error {
+
+	s := "/tmp/" + uuid.New().String()
+	err := ioutil.WriteFile(s, data, os.FileMode(0777))
+	if err != nil {
+		return err
+	}
+
+	return sh.ScpTo(s, destination)
+}
+
+func (sh *SshConnection) ScpFrom(source string, destination string) error {
+	cmd := exec.Command("sh", "-c", "scp -i "+sh.KeyLocation+" "+source+" "+sh.Username+"@"+sh.IP+":"+destination)
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatal(string(out))
+	}
+
+	if sh.VerboseMode {
+		fmt.Println("[client_id: "+sh.ClientID+"]"+string(out))
+	}
+
+	return err
+}
+
+func (sh *SshConnection) ScpTo(source string, destination string) error {
+
+	c := "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i " + sh.KeyLocation + " " + source + " " + sh.Username + "@" + sh.IP + ":" + destination
+	fmt.Println(c)
+	cmd := exec.Command("sh", "-c", c)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatal(string(out))
+	}
+
+	if sh.VerboseMode {
+		fmt.Println("[client_id: "+sh.ClientID+"]"+string(out))
+	}
+
+	return err
+}
+
 func (sh *SshConnection) Run(cmd []string) error {
 
 	var signer ssh.Signer
@@ -85,7 +133,7 @@ func (sh *SshConnection) Run(cmd []string) error {
 	timeout := sh.Timeout
 
 	if timeout == 0 {
-		timeout = 5*time.Minute
+		timeout = 5 * time.Minute
 	}
 
 	if sh.KeyLocation != "" {
@@ -140,6 +188,10 @@ func (sh *SshConnection) Run(cmd []string) error {
 			session.Close()
 			log.Println(string(writeCloudInfoOut))
 			return err
+		}
+
+		if sh.VerboseMode {
+			fmt.Println("[client_id: "+sh.ClientID+"]"+string(writeCloudInfoOut))
 		}
 
 		session.Close()

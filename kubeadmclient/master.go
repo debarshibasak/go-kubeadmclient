@@ -3,7 +3,11 @@ package kubeadmclient
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/centos"
+	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/common"
+	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/ubuntu"
 	"github.com/debarshibasak/go-kubeadminclient/sshclient"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -19,27 +23,9 @@ func NewMasterNode(username string,
 		username:           username,
 		ipOrHost:           ipOrHost,
 		privateKeyLocation: privateKeyLocation,
+		clientID: uuid.New().String(),
 	},
 	}
-}
-
-func NewMasterNodes(username string,
-	ipOrHost []string,
-	osType string,
-	privateKeyLocation string) []MasterNode {
-
-	var masterNodes []MasterNode
-
-	for _, ip := range ipOrHost {
-		masterNodes = append(masterNodes, MasterNode{&Node{
-			username:           username,
-			ipOrHost:           ip,
-			osType:             osType,
-			privateKeyLocation: privateKeyLocation,
-		}})
-	}
-
-	return masterNodes
 }
 
 func (n *MasterNode) GetToken() (string, error) {
@@ -59,7 +45,7 @@ func (n *MasterNode) GetToken() (string, error) {
 
 	err = json.Unmarshal([]byte(out), &c)
 	if err != nil {
-		return "",  err
+		return "", err
 	}
 
 	return c["token"].(string), nil
@@ -73,49 +59,95 @@ func (n *MasterNode) GetJoinCommand() (string, error) {
 	return n.sshClient().Collect("sudo kubeadm token create --print-join-command")
 }
 
-func (n *MasterNode) Install() error {
+func (n *MasterNode) InstallAndFetchCommand() (string, error) {
 
 	osType := n.determineOS()
 
-	fmt.Println("os determined "+osType)
+	fmt.Println("os determined " + osType)
 
 	var cmds []string
 
 	if osType == "ubuntu" {
-		cmds = []string{
-			"sudo apt-get update",
-			"sudo apt-get install -y iptables arptables ebtables",
-			//"sudo update-alternatives --set iptables /usr/sbin/iptables-legacy",
-			//"sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy",
-			//"sudo update-alternatives --set arptables /usr/sbin/arptables-legacy",
-			//"sudo update-alternatives --set ebtables /usr/sbin/ebtables-legacy",
-			"sudo apt-get update && sudo apt-get install -y apt-transport-https curl",
-			"curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
-			`cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
-deb https://apt.kubernetes.io/ kubernetes-xenial main
-EOF
-`,
-			"sudo apt-get update",
-			"sudo apt-get install -y kubelet kubeadm kubectl",
-			"sudo apt-mark hold kubelet kubeadm kubectl",
-			"sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
-			`sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"`,
-			"sudo apt update",
-			"apt-cache policy docker-ce",
-			"sudo apt install docker-ce -y",
-			"sudo usermod -aG docker ${USER}",
-			"sudo swapoff -a",
-			`sudo sed -i "/ swap / s/^\(.*\)$/#\1/g" /etc/fstab`,
-			"sudo sysctl net.bridge.bridge-nf-call-iptables=1",
+		cmds = ubuntu.GenerateCommands(&common.HighAvailability{})
+
+		err := n.sshClient().Run(cmds)
+		if err != nil {
+			return "", err
+		}
+
+		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+		if err != nil {
+			return "", err
+		}
+
+	} else if osType == "centos" || osType == "redhat" {
+		cmds = centos.GenerateCommands(&common.HighAvailability{})
+		err := n.sshClient().Run(cmds)
+		if err != nil {
+			return "", err
+		}
+
+		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+		if err != nil {
+			return "", err
 		}
 	}
 
-	err := n.sshClient().Run(cmds)
+	out, err := n.sshClientWithTimeout(20 * time.Minute).Collect("sudo kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs")
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return n.sshClientWithTimeout(20*time.Minute).Run([]string{
-			"sudo kubeadm init --pod-network-cidr=192.178.0.0/16 --service-cidr=192.178.168.0/16",
-	})
+	return getControlPlaneJoinCommand(out), nil
+}
+
+func (n *MasterNode) Install(init bool, availability *common.HighAvailability) error {
+
+	osType := n.determineOS()
+
+	fmt.Println("os determined " + osType)
+
+	var cmds []string
+
+	if osType == "ubuntu" {
+		cmds = ubuntu.GenerateCommands(availability)
+
+		err := n.sshClientWithTimeout(30*time.Minute).Run(cmds)
+		if err != nil {
+			return err
+		}
+
+		if availability != nil && init {
+			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+			if err != nil {
+				return err
+			}
+		}
+
+	} else if osType == "centos" || osType == "redhat" {
+		cmds = centos.GenerateCommands(availability)
+		err := n.sshClientWithTimeout(30*time.Minute).Run(cmds)
+		if err != nil {
+			return err
+		}
+
+		if availability != nil && init {
+			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	var s string
+
+	if availability != nil && init {
+		s = "sudo kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs"
+	} else if availability != nil && !init {
+		s = "sudo " + availability.JoinCommand
+	} else {
+		s = "sudo kubeadm init --pod-network-cidr=192.178.0.0/16 --service-cidr=192.178.168.0/16"
+	}
+
+	return n.sshClientWithTimeout(30 * time.Minute).Run([]string{s})
 }
