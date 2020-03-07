@@ -1,8 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
-github.com/debarshibasak/go-multipass v0.0.0-20200307173611-920f5dd9dd72 h1:KYIpXUNQa5mU2oTCqc2F/+jwYOjmZXH3HaucpZnQMBY=
-github.com/debarshibasak/go-multipass v0.0.0-20200307173611-920f5dd9dd72/go.mod h1:51oxrhUSyXUPmx2GsUbQ3GlK56VNkfWAlfQiREWHoto=
+github.com/debarshibasak/go-multipass v1.0.0 h1:1EgJOcMbImldvYynJnDz/CjII2xsL+qyyT5CSUuIBUE=
+github.com/debarshibasak/go-multipass v1.0.0/go.mod h1:b0JjZSmbnrGrnsD/vtESeBM6W3PLqRweVjU2xbbFISA=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

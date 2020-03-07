@@ -3,7 +3,7 @@ module github.com/debarshibasak/go-kubeadmclient
 go 1.12
 
 require (
-	github.com/debarshibasak/go-multipass v0.0.0-20200307173611-920f5dd9dd72
+	github.com/debarshibasak/go-multipass v1.0.0
 	github.com/google/uuid v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli v1.22.2
