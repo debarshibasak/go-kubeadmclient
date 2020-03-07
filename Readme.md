@@ -1,4 +1,4 @@
-# go-kubeadminclient
+# go-kubeadmclient
 
 Golang SDK for creating kubernetes clusters and kubectl. The library automatically detects the operating system 
 and then creates the cluster for that particular os.
