@@ -3,10 +3,10 @@ package kubeadmclient
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/centos"
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/common"
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/ubuntu"
-	"github.com/debarshibasak/go-kubeadminclient/sshclient"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/centos"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ubuntu"
+	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 	"github.com/google/uuid"
 	"time"
 )

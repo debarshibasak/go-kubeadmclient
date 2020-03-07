@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient"
-	"github.com/debarshibasak/go-kubeadminclient/providers"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
+	"github.com/debarshibasak/go-kubeadmclient/providers"
 	"github.com/urfave/cli"
 	"log"
 	"os"
@@ -52,7 +52,7 @@ func main() {
 				VerboseMode: false,
 			}
 
-			err := kubeadmClient.CreateCluster()
+			err = kubeadmClient.CreateCluster()
 			if err != nil {
 				log.Fatal(err)
 			}

@@ -1,7 +1,6 @@
 package kubeadmclient
 
 import (
-	"github.com/debarshibasak/go-kubeadminclient/sshclient"
 	"github.com/google/uuid"
 	"time"
 )

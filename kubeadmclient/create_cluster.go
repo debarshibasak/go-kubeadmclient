@@ -1,8 +1,8 @@
 package kubeadmclient
 
 import (
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/common"
-	"github.com/debarshibasak/go-kubeadminclient/kubectl"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
+	"github.com/debarshibasak/go-kubeadmclient/kubectl"
 	"log"
 	"strings"
 	"sync"

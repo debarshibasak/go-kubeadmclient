@@ -10,7 +10,7 @@ Create a NonHA Cluster With code. For example:
 package main
 
 import (
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"log"
 )
 

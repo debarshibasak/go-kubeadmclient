@@ -1,7 +1,7 @@
 package providers
 
 import (
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"github.com/debarshibasak/go-multipass/multipass"
 	"github.com/pkg/errors"
 )

@@ -1,7 +1,7 @@
 package ubuntu
 
 import (
-	"github.com/debarshibasak/go-kubeadminclient/kubeadmclient/common"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
 )
 
 func GenerateCommands( availability *common.HighAvailability) []string {
