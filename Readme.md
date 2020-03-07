@@ -101,10 +101,13 @@ if err := workerNode.Install(joinCommand); err != nil {
 }
 ```
 
-#### Roadmap
-
-- Add High availability cluster creation
+#### Recent changes
+- Added support for HA cluster
 - Parallel worker node provisioning
+- Added support for multipass
+
+#### Roadmap
 - cli for creating cluster
 - use configuration file for the cli
+- Support Multicloud providers, VM hypervisors
 
