@@ -1,7 +1,30 @@
 package common
 
+import (
+	"os"
+)
+
 type HighAvailability struct {
 	JoinCommand string
+}
+
+func PublicKeyExists() (string, string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", "", err
+	}
+
+	publicKeyLocation := homeDir + "/.ssh/id_rsa.pub"
+	privateKeyLocation := homeDir + "/.ssh/id_rsa"
+	if _, err := os.Stat(publicKeyLocation); err == nil {
+		if _, err := os.Stat(privateKeyLocation);err == nil {
+			return publicKeyLocation, privateKeyLocation, nil
+		} else {
+			return "", "", err
+		}
+	} else {
+		return "", "", err
+	}
 }
 
 func GenerateKubeadmConfig(ip string) string {

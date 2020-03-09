@@ -1,21 +1,22 @@
 package kubeadmclient
 
 import (
+	"fmt"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
-	"github.com/debarshibasak/go-kubeadmclient/kubectl"
 	"log"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Kubeadm struct {
-	ClusterName string
-	MasterNodes []*MasterNode
-	WorkerNodes []*WorkerNode
-	ApplyFiles []string
-	PodNetwork string
+	ClusterName    string
+	MasterNodes    []*MasterNode
+	WorkerNodes    []*WorkerNode
+	ApplyFiles     []string
+	PodNetwork     string
 	ServiceNetwork string
-	VerboseMode bool
+	VerboseMode    bool
 }
 
 func getControlPlaneJoinCommand(data string) string {
@@ -40,20 +41,31 @@ func getControlPlaneJoinCommand(data string) string {
 	return cmd
 }
 
-/*Creates cluster give a list of master nodes, worker nodes and then applies required kubernetes manifests*/
+func (k *Kubeadm) GetKubeConfig() (string, error) {
+	return k.MasterNodes[0].GetKubeConfig()
+}
+
+func (k *Kubeadm) ApplyTaint() (string, error) {
+	return k.MasterNodes[0].GetKubeConfig()
+}
+
+//Creates cluster give a list of master nodes, worker nodes and then applies required kubernetes manifests*/
 func (k *Kubeadm) CreateCluster() error {
 
-	var kubeCtl *kubectl.Kubectl
 	var joinCommand string
+
+	startTime := time.Now()
+
+	log.Println("total master - " + fmt.Sprintf("%v", len(k.MasterNodes)))
+	log.Println("total workers - " + fmt.Sprintf("%v", len(k.WorkerNodes)))
 
 	primaryMaster := k.MasterNodes[0]
 	if len(k.MasterNodes) == 1 {
 		//nonha setup
-
 		masterNode := primaryMaster
 		masterNode.verboseMode = k.VerboseMode
 
-		err := masterNode.Install(false,nil)
+		err := masterNode.Install(false, nil)
 		if err != nil {
 			return err
 		}
@@ -63,13 +75,12 @@ func (k *Kubeadm) CreateCluster() error {
 			return err
 		}
 
-		kubeconfig, err := masterNode.GetKubeConfig()
+		err = masterNode.ChangePermissionKubeconfig()
 		if err != nil {
 			return err
 		}
 
-		kubeCtl = kubectl.New([]byte(kubeconfig))
-		err = kubeCtl.TaintAllNodes("node-role.kubernetes.io/master-")
+		err = masterNode.TaintAsMaster()
 		if err != nil {
 			return err
 		}
@@ -83,20 +94,19 @@ func (k *Kubeadm) CreateCluster() error {
 			return err
 		}
 
-		kubeconfig, err := primaryMaster.GetKubeConfig()
+		for _, master := range k.MasterNodes[1:len(k.MasterNodes)] {
+			err := master.Install(false, &common.HighAvailability{JoinCommand: masterJoinCommand})
+			if err != nil {
+				log.Println(err)
+			}
+		}
+
+		err = primaryMaster.ChangePermissionKubeconfig()
 		if err != nil {
 			return err
 		}
 
-		for _, master := range k.MasterNodes[1:len(k.MasterNodes)] {
-				err := master.Install(false, &common.HighAvailability{JoinCommand:masterJoinCommand})
-				if err != nil {
-					log.Println(err)
-				}
-		}
-
-		kubeCtl = kubectl.New([]byte(kubeconfig))
-		err = kubeCtl.TaintAllNodes("node-role.kubernetes.io/master-")
+		err = primaryMaster.TaintAsMaster()
 		if err != nil {
 			return err
 		}
@@ -107,29 +117,34 @@ func (k *Kubeadm) CreateCluster() error {
 		}
 	}
 
+	var workerWG sync.WaitGroup
+
 	if len(k.WorkerNodes) > 0 {
-		var workG sync.WaitGroup
-		workG.Add(len(k.WorkerNodes))
 
 		for _, workerNode := range k.WorkerNodes {
-			go func(workG *sync.WaitGroup, workerNode WorkerNode) {
-				if err := workerNode.Install(joinCommand); err != nil {
+
+			workerWG.Add(1)
+
+			go func(workerWG *sync.WaitGroup, node *WorkerNode) {
+				if err := node.Install(joinCommand); err != nil {
 					log.Println(err)
 				}
-				workG.Done()
-			}(&workG, *workerNode)
+				workerWG.Done()
+			}(&workerWG, workerNode)
 		}
-
-		workG.Wait()
 	}
 
+	workerWG.Wait()
 
 	for _, file := range k.ApplyFiles {
-		err := kubeCtl.ApplyFile(file)
+
+		err := k.MasterNodes[0].ApplyFile(file)
 		if err != nil {
 			return err
 		}
 	}
+
+	log.Printf("Time taken to create cluster %v\n", time.Since(startTime).String())
 
 	return nil
 }

@@ -23,9 +23,22 @@ func NewMasterNode(username string,
 		username:           username,
 		ipOrHost:           ipOrHost,
 		privateKeyLocation: privateKeyLocation,
-		clientID: uuid.New().String(),
+		clientID:           uuid.New().String(),
 	},
 	}
+}
+
+func (n *MasterNode) ChangePermissionKubeconfig() error {
+	return n.Run("sudo chown $USER:$USER /etc/kubernetes/admin.conf")
+}
+
+func (n *MasterNode) TaintAsMaster() error {
+	return n.Run("KUBECONFIG=/etc/kubernetes/admin.conf kubectl taint nodes --all node-role.kubernetes.io/master-")
+}
+
+func (n *MasterNode) ApplyFile(file string) error {
+
+	return n.Run("KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f " + file)
 }
 
 func (n *MasterNode) GetToken() (string, error) {
@@ -49,6 +62,10 @@ func (n *MasterNode) GetToken() (string, error) {
 	}
 
 	return c["token"].(string), nil
+}
+
+func (n *MasterNode) Run(shell string) error {
+	return n.sshClient().Run([]string{shell})
 }
 
 func (n *MasterNode) GetKubeConfig() (string, error) {
@@ -112,7 +129,7 @@ func (n *MasterNode) Install(init bool, availability *common.HighAvailability) e
 	if osType == "ubuntu" {
 		cmds = ubuntu.GenerateCommands(availability)
 
-		err := n.sshClientWithTimeout(30*time.Minute).Run(cmds)
+		err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
 		if err != nil {
 			return err
 		}
@@ -126,7 +143,7 @@ func (n *MasterNode) Install(init bool, availability *common.HighAvailability) e
 
 	} else if osType == "centos" || osType == "redhat" {
 		cmds = centos.GenerateCommands(availability)
-		err := n.sshClientWithTimeout(30*time.Minute).Run(cmds)
+		err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
 		if err != nil {
 			return err
 		}
@@ -146,7 +163,7 @@ func (n *MasterNode) Install(init bool, availability *common.HighAvailability) e
 	} else if availability != nil && !init {
 		s = "sudo " + availability.JoinCommand
 	} else {
-		s = "sudo kubeadm init --pod-network-cidr=192.178.0.0/16 --service-cidr=192.178.168.0/16"
+		s = "sudo kubeadm init --pod-network-cidr=10.244.0.0/16"
 	}
 
 	return n.sshClientWithTimeout(30 * time.Minute).Run([]string{s})
