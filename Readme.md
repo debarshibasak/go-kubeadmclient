@@ -110,4 +110,6 @@ if err := workerNode.Install(joinCommand); err != nil {
 - cli for creating cluster
 - use configuration file for the cli
 - Support Multicloud providers, VM hypervisors
+- Add HA Proxy Support for multi master setup
+
 
