@@ -3,6 +3,7 @@ package kubeadmclient
 import (
 	"fmt"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
+	"github.com/pkg/errors"
 	"log"
 	"strings"
 	"sync"
@@ -51,7 +52,9 @@ func (k *Kubeadm) ApplyTaint() (string, error) {
 
 //Creates cluster give a list of master nodes, worker nodes and then applies required kubernetes manifests*/
 func (k *Kubeadm) CreateCluster() error {
-
+	if k.ClusterName == "" {
+		return errors.New("cluster name is not set")
+	}
 	var joinCommand string
 
 	startTime := time.Now()
@@ -88,7 +91,7 @@ func (k *Kubeadm) CreateCluster() error {
 
 		primaryMaster.verboseMode = k.VerboseMode
 
-		masterJoinCommand, err := primaryMaster.InstallAndFetchCommand()
+		masterJoinCommand, err := primaryMaster.installAndFetchCommand(k.ClusterName)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -137,7 +140,6 @@ func (k *Kubeadm) CreateCluster() error {
 	workerWG.Wait()
 
 	for _, file := range k.ApplyFiles {
-
 		err := k.MasterNodes[0].ApplyFile(file)
 		if err != nil {
 			return err

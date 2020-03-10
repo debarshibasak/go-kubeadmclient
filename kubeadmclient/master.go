@@ -37,8 +37,11 @@ func (n *MasterNode) TaintAsMaster() error {
 }
 
 func (n *MasterNode) ApplyFile(file string) error {
-
 	return n.Run("KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f " + file)
+}
+
+func (n *MasterNode) ApplyFlannel() error {
+	return n.Run("KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml")
 }
 
 func (n *MasterNode) GetToken() (string, error) {
@@ -76,7 +79,7 @@ func (n *MasterNode) GetJoinCommand() (string, error) {
 	return n.sshClient().Collect("sudo kubeadm token create --print-join-command")
 }
 
-func (n *MasterNode) InstallAndFetchCommand() (string, error) {
+func (n *MasterNode) installAndFetchCommand(clusterName string) (string, error) {
 
 	osType := n.determineOS()
 
@@ -92,7 +95,7 @@ func (n *MasterNode) InstallAndFetchCommand() (string, error) {
 			return "", err
 		}
 
-		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, clusterName)), "/tmp/kubeadm-config.yaml")
 		if err != nil {
 			return "", err
 		}
@@ -104,7 +107,7 @@ func (n *MasterNode) InstallAndFetchCommand() (string, error) {
 			return "", err
 		}
 
-		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, "")), "/tmp/kubeadm-config.yaml")
 		if err != nil {
 			return "", err
 		}
@@ -135,7 +138,7 @@ func (n *MasterNode) Install(init bool, availability *common.HighAvailability) e
 		}
 
 		if availability != nil && init {
-			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, "")), "/tmp/kubeadm-config.yaml")
 			if err != nil {
 				return err
 			}
@@ -149,7 +152,7 @@ func (n *MasterNode) Install(init bool, availability *common.HighAvailability) e
 		}
 
 		if availability != nil && init {
-			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost)), "/tmp/kubeadm-config.yaml")
+			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, "")), "/tmp/kubeadm-config.yaml")
 			if err != nil {
 				return err
 			}

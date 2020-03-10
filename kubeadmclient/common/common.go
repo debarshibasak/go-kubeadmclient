@@ -17,7 +17,7 @@ func PublicKeyExists() (string, string, error) {
 	publicKeyLocation := homeDir + "/.ssh/id_rsa.pub"
 	privateKeyLocation := homeDir + "/.ssh/id_rsa"
 	if _, err := os.Stat(publicKeyLocation); err == nil {
-		if _, err := os.Stat(privateKeyLocation);err == nil {
+		if _, err := os.Stat(privateKeyLocation); err == nil {
 			return publicKeyLocation, privateKeyLocation, nil
 		} else {
 			return "", "", err
@@ -27,18 +27,18 @@ func PublicKeyExists() (string, string, error) {
 	}
 }
 
-func GenerateKubeadmConfig(ip string) string {
+func GenerateKubeadmConfig(ip string, clusterName string) string {
 	return `
 apiVersion: kubeadm.k8s.io/v1beta1
 kind: ClusterConfiguration
 kubernetesVersion: "1.17.3"
 apiServer:
    certSANs:
-   - "`+ip+`"
-controlPlaneEndpoint: "`+ip+`:6443"
+   - "` + ip + `"
+controlPlaneEndpoint: "` + ip + `:6443"
 networking:
-podSubnet: 10.244.0.0/16
-clusterName: "test-cluster"
+  podSubnet: 10.244.0.0/16
+  clusterName: "` + clusterName + `"
 `
 }
 
@@ -56,11 +56,11 @@ controlPlaneEndpoint: "k8s.apiserver.cluster:443"
 etcd:
   local:
     extraArgs:
-      listen-client-urls: "https://127.0.0.1:2379,https://` +ip+ `:2379"
+      listen-client-urls: "https://127.0.0.1:2379,https://` + ip + `:2379"
       advertise-client-urls: "https://` + ip + `:2379"
       listen-peer-urls: "https://` + ip + `:2380"
-      initial-advertise-peer-urls: "https://` +ip + `:2380"
-      initial-cluster: "k8s-master01=https://` +ip + `:2380"
+      initial-advertise-peer-urls: "https://` + ip + `:2380"
+      initial-cluster: "k8s-master01=https://` + ip + `:2380"
     serverCertSANs:
       - ` + ip + `
     peerCertSANs:
@@ -72,4 +72,3 @@ networking:
     podSubnet: "10.244.0.0/16"
 `
 }
-
