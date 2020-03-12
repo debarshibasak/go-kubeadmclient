@@ -2,14 +2,15 @@ package sshclient
 
 import (
 	"fmt"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/ssh"
 )
 
 type SshConnection struct {
@@ -73,6 +74,7 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 		return "", err
 	}
 
+	fmt.Println(cmd)
 	writeCloudInfoOut, err := session.Output(fmt.Sprintf("sh -c '%v'", cmd))
 	if err != nil {
 		return "", err
@@ -102,7 +104,7 @@ func (sh *SshConnection) ScpFrom(source string, destination string) error {
 	}
 
 	if sh.VerboseMode {
-		fmt.Println("[client_id: "+sh.ClientID+"]"+string(out))
+		fmt.Println("[client_id: " + sh.ClientID + "]" + string(out))
 	}
 
 	return err
@@ -119,7 +121,7 @@ func (sh *SshConnection) ScpTo(source string, destination string) error {
 	}
 
 	if sh.VerboseMode {
-		fmt.Println("[client_id: "+sh.ClientID+"]"+string(out))
+		fmt.Println("[client_id: " + sh.ClientID + "]" + string(out))
 	}
 
 	return err
@@ -191,7 +193,7 @@ func (sh *SshConnection) Run(cmd []string) error {
 		}
 
 		if sh.VerboseMode {
-			fmt.Println("[client_id: "+sh.ClientID+"]"+string(writeCloudInfoOut))
+			fmt.Println("[client_id: " + sh.ClientID + "]" + string(writeCloudInfoOut))
 		}
 
 		session.Close()

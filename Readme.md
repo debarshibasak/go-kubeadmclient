@@ -40,9 +40,23 @@ func main(){
 }
 ```
 
+#### Using CLI to create clusters 
+
+Build the project as follows
+
+```
+
+go build -o kubeadmclient cmd/main.go 
+./kubeorchestrator --provider multipass --master-count 2 --worker-count 2 --cluster-name test
+
+```
+This command will actually acquire 2+2+1 instances in multipass. 1 extra instance to provision HAProxy.
+Currently the cli only supports multipass.
+
+#### Breakdown of the Library
+
 
 You can also create individual master and workers using the SDK too. For example, to create master node:
-
 ```
 masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/home/debarshibasak/.ssh/id_rsa")
 if err := masterNode.Install(false); err != nil {
@@ -105,11 +119,12 @@ if err := workerNode.Install(joinCommand); err != nil {
 - Added support for HA cluster
 - Parallel worker node provisioning
 - Added support for multipass
+- Add HA Proxy Support for multi master setup
+- cli for creating cluster
 
 #### Roadmap
-- cli for creating cluster
+- cli support for baremetal, gke, aks, eks, digitalocean
 - use configuration file for the cli
 - Support Multicloud providers, VM hypervisors
-- Add HA Proxy Support for multi master setup
 
 

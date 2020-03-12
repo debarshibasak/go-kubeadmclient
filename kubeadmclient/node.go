@@ -1,9 +1,12 @@
 package kubeadmclient
 
 import (
-	"github.com/debarshibasak/go-kubeadmclient/sshclient"
+	"fmt"
+	"log"
 	"strings"
 	"time"
+
+	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 )
 
 type Node struct {
@@ -15,27 +18,41 @@ type Node struct {
 	clientID           string
 }
 
-func (n *Node) determineOS() string {
+type OsType string
+
+const (
+	Ubuntu    OsType = "UBUNTU"
+	Centos    OsType = "CENTOS"
+	RedHat    OsType = "REDHAT"
+	UnknownOS OsType = "n/a"
+)
+
+func (n *Node) String() string {
+	return fmt.Sprintf("ip=%v username=%v key=%v", n.ipOrHost, n.username, n.privateKeyLocation)
+}
+
+func (n *Node) determineOS() OsType {
 
 	client := n.sshClient()
 	out, err := client.Collect("uname -a")
 	if err != nil {
-		return "n/a"
+		log.Println(string(out))
+		return UnknownOS
 	}
 
 	if strings.Contains(out, "Ubuntu") {
-		return "ubuntu"
+		return Ubuntu
 	}
 
 	if err := client.Run([]string{"ls /etc/centos-release"}); err == nil {
-		return "centos"
+		return Centos
 	}
 
 	if err := client.Run([]string{"ls /etc/redhat-release"}); err == nil {
-		return "redhat"
+		return RedHat
 	}
 
-	return "n/a"
+	return UnknownOS
 }
 
 func (n *Node) sshClient() *sshclient.SshConnection {

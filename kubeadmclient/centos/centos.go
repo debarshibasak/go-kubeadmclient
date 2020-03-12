@@ -1,10 +1,6 @@
 package centos
 
-import (
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
-)
-
-func GenerateCommands(availability *common.HighAvailability) []string {
+func GenerateCommands() []string {
 	cmds := []string{
 		`cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]

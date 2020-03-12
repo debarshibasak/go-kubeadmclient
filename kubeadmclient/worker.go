@@ -1,8 +1,9 @@
 package kubeadmclient
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type WorkerNode struct {
@@ -18,7 +19,7 @@ func NewWorkerNode(username string,
 			username:           username,
 			ipOrHost:           ipOrHost,
 			privateKeyLocation: privateKeyLocation,
-			clientID: uuid.New().String(),
+			clientID:           uuid.New().String(),
 		},
 	}
 }
@@ -47,14 +48,13 @@ EOF
 		"apt-cache policy docker-ce",
 		"sudo apt install docker-ce -y",
 		"sudo usermod -aG docker ${USER}",
-
 	}
 
-	if err := n.sshClientWithTimeout(30*time.Minute).Run(cmds); err != nil {
+	if err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds); err != nil {
 		return err
 	}
 
-	return n.sshClientWithTimeout(30*time.Minute).Run([]string{
-		"sudo "+joinCommand,
+	return n.sshClientWithTimeout(30 * time.Minute).Run([]string{
+		"sudo " + joinCommand,
 	})
 }

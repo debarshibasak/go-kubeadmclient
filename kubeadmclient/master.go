@@ -3,12 +3,15 @@ package kubeadmclient
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/centos"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ubuntu"
 	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 	"github.com/google/uuid"
-	"time"
 )
 
 type MasterNode struct {
@@ -79,7 +82,7 @@ func (n *MasterNode) GetJoinCommand() (string, error) {
 	return n.sshClient().Collect("sudo kubeadm token create --print-join-command")
 }
 
-func (n *MasterNode) installAndFetchCommand(clusterName string) (string, error) {
+func (n *MasterNode) installAndFetchCommand(clusterName string, vip string) (string, error) {
 
 	osType := n.determineOS()
 
@@ -87,21 +90,21 @@ func (n *MasterNode) installAndFetchCommand(clusterName string) (string, error) 
 
 	var cmds []string
 
-	if osType == "ubuntu" {
-		cmds = ubuntu.GenerateCommands(&common.HighAvailability{})
+	if osType == Ubuntu {
+		cmds = ubuntu.GenerateCommands()
 
 		err := n.sshClient().Run(cmds)
 		if err != nil {
 			return "", err
 		}
 
-		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, clusterName)), "/tmp/kubeadm-config.yaml")
+		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(vip, clusterName)), "/tmp/kubeadm-config.yaml")
 		if err != nil {
 			return "", err
 		}
 
-	} else if osType == "centos" || osType == "redhat" {
-		cmds = centos.GenerateCommands(&common.HighAvailability{})
+	} else if osType == Centos || osType == RedHat {
+		cmds = centos.GenerateCommands()
 		err := n.sshClient().Run(cmds)
 		if err != nil {
 			return "", err
@@ -113,15 +116,16 @@ func (n *MasterNode) installAndFetchCommand(clusterName string) (string, error) 
 		}
 	}
 
-	out, err := n.sshClientWithTimeout(20 * time.Minute).Collect("sudo kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs")
+	out, err := n.sshClientWithTimeout(30 * time.Minute).Collect("sudo kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs")
 	if err != nil {
+		log.Println(out)
 		return "", err
 	}
 
 	return getControlPlaneJoinCommand(out), nil
 }
 
-func (n *MasterNode) Install(init bool, availability *common.HighAvailability) error {
+func (n *MasterNode) Install(availability *common.HighAvailability) error {
 
 	osType := n.determineOS()
 
@@ -129,45 +133,56 @@ func (n *MasterNode) Install(init bool, availability *common.HighAvailability) e
 
 	var cmds []string
 
-	if osType == "ubuntu" {
-		cmds = ubuntu.GenerateCommands(availability)
+	if osType == Ubuntu {
+		cmds = ubuntu.GenerateCommands()
 
 		err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
 		if err != nil {
 			return err
 		}
 
-		if availability != nil && init {
-			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, "")), "/tmp/kubeadm-config.yaml")
-			if err != nil {
-				return err
-			}
-		}
-
-	} else if osType == "centos" || osType == "redhat" {
-		cmds = centos.GenerateCommands(availability)
+	} else if osType == Centos || osType == RedHat {
+		cmds = centos.GenerateCommands()
 		err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
 		if err != nil {
 			return err
 		}
+	}
 
-		if availability != nil && init {
-			err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, "")), "/tmp/kubeadm-config.yaml")
-			if err != nil {
-				return err
-			}
-		}
+	err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
+	if err != nil {
+		return err
 	}
 
 	var s string
 
-	if availability != nil && init {
-		s = "sudo kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs"
-	} else if availability != nil && !init {
+	if availability != nil {
 		s = "sudo " + availability.JoinCommand
 	} else {
 		s = "sudo kubeadm init --pod-network-cidr=10.244.0.0/16"
 	}
 
 	return n.sshClientWithTimeout(30 * time.Minute).Run([]string{s})
+}
+
+func getControlPlaneJoinCommand(data string) string {
+	var cmd string
+
+	for _, line := range strings.Split(data, "\n") {
+
+		if strings.HasPrefix(strings.TrimSpace(line), "kubeadm") {
+			cmd = cmd + strings.ReplaceAll(line, "\\", "")
+		}
+
+		if strings.HasPrefix(strings.TrimSpace(line), "--discovery") {
+			cmd = cmd + strings.ReplaceAll(line, "\\", "")
+		}
+
+		if strings.HasPrefix(strings.TrimSpace(line), "--control-plane") {
+			cmd = cmd + strings.ReplaceAll(line, "\\", "")
+			return cmd
+		}
+	}
+
+	return cmd
 }
