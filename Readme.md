@@ -127,4 +127,5 @@ please create a github issue.
 - use configuration file for the cli
 - Support Multicloud providers, VM hypervisors
 - More structure approach towards CNI, pod cidrs, service cidrs, etc.
+- Support for offline installation
 
