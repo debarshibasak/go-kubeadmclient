@@ -112,6 +112,7 @@ if err := workerNode.Install(joinCommand); err != nil {
 - This has been only tested on ubuntu. If you want this orchestration to be tested on centos or redhat, 
 please create a github issue.
 - Please make sure the user with which you create the VMs are passwordless sudoers.
+- PodCidr is hardcoded. It will be remove and made into a variable in kubeadm very soon.
 
 #### Recent changes
 - Added support for HA cluster
@@ -125,4 +126,5 @@ please create a github issue.
 - Testing this orchestration on centos
 - use configuration file for the cli
 - Support Multicloud providers, VM hypervisors
+- More structure approach towards CNI, pod cidrs, service cidrs, etc.
 
