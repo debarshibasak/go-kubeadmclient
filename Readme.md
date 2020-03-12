@@ -45,24 +45,20 @@ func main(){
 Build the project as follows
 
 ```
-
-go build -o kubeadmclient cmd/main.go 
+go build -o kubeorchestrator cmd/main.go 
 ./kubeorchestrator --provider multipass --master-count 2 --worker-count 2 --cluster-name test
-
 ```
 This command will actually acquire 2+2+1 instances in multipass. 1 extra instance to provision HAProxy.
 Currently the cli only supports multipass.
 
-#### Breakdown of the Library
-
+#### Breaking down the SDK
 
 You can also create individual master and workers using the SDK too. For example, to create master node:
 ```
-masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/home/debarshibasak/.ssh/id_rsa")
+masterNode := kubeadmclient.NewMasterNode("ubuntu", "192.168.64.16", "/home/debarshibasak/.ssh/id_rsa")
 if err := masterNode.Install(false); err != nil {
     log.Fatal(err)
 }
-
 ```
 
 To Fetch kubeconfig
@@ -77,19 +73,16 @@ if err != nil {
 Then taint the node as master
 
 ```
-kCtlClient := kubectl.New([]byte(kubeconfig))
-
-err = kCtlClient.TaintAllNodes("node-role.kubernetes.io/master-")
+err = masterNode.TaintAsMaster()
 if err != nil {
     log.Fatal(err)
 }
-
 ```
 
 Apply a CNI plugin
 
 ```
-err = kCtlClient.ApplyFile("https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml")
+err = masterNode.ApplyFile("https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml")
 if err != nil {
     log.Fatal(err)
 }
@@ -108,7 +101,7 @@ if err != nil {
 ..and then create worker nodes
 
 ```
-workerNode := NewWorkerNode("ubuntu", "192.168.64.15", "/home/debarshibasak/.ssh/id_rsa")
+workerNode := kubeadmclient.NewWorkerNode("ubuntu", "192.168.64.15", "/home/debarshibasak/.ssh/id_rsa")
 
 if err := workerNode.Install(joinCommand); err != nil {
     log.Fatal(err)
@@ -123,8 +116,7 @@ if err := workerNode.Install(joinCommand); err != nil {
 - cli for creating cluster
 
 #### Roadmap
-- cli support for baremetal, gke, aks, eks, digitalocean
+- CLI support for baremetal, gke, aks, eks, digitalocean
 - use configuration file for the cli
 - Support Multicloud providers, VM hypervisors
-
 
