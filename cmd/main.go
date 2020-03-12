@@ -15,20 +15,24 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "provider",
-				Usage: "set a provider",
+				Name:     "provider",
+				Usage:    "set a provider",
+				Required: true,
 			},
 			&cli.IntFlag{
-				Name:  "master-count",
-				Usage: "master count",
+				Name:     "master-count",
+				Usage:    "master count",
+				Required: true,
 			},
 			&cli.IntFlag{
-				Name:  "worker-count",
-				Usage: "worker count",
+				Name:     "worker-count",
+				Usage:    "worker count",
+				Required: true,
 			},
 			&cli.StringFlag{
-				Name:  "cluster-name",
-				Usage: "name of the cluster",
+				Name:     "cluster-name",
+				Usage:    "name of the cluster",
+				Required: true,
 			},
 			&cli.StringFlag{
 				Name:  "config",
@@ -43,8 +47,6 @@ func main() {
 				Usage: "enable verbose mode",
 			},
 		},
-		Name:  "create",
-		Usage: "run the manifest",
 		Action: func(c *cli.Context) error {
 			provider := c.String("provider")
 			fmt.Println(provider)
