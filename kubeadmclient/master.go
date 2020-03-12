@@ -2,14 +2,11 @@ package kubeadmclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/centos"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ubuntu"
 	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 	"github.com/google/uuid"
 )
@@ -86,34 +83,14 @@ func (n *MasterNode) installAndFetchCommand(clusterName string, vip string) (str
 
 	osType := n.determineOS()
 
-	fmt.Println("os determined " + osType)
+	err := n.sshClient().Run(osType.Commands())
+	if err != nil {
+		return "", err
+	}
 
-	var cmds []string
-
-	if osType == Ubuntu {
-		cmds = ubuntu.GenerateCommands()
-
-		err := n.sshClient().Run(cmds)
-		if err != nil {
-			return "", err
-		}
-
-		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(vip, clusterName)), "/tmp/kubeadm-config.yaml")
-		if err != nil {
-			return "", err
-		}
-
-	} else if osType == Centos || osType == RedHat {
-		cmds = centos.GenerateCommands()
-		err := n.sshClient().Run(cmds)
-		if err != nil {
-			return "", err
-		}
-
-		err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(n.ipOrHost, "")), "/tmp/kubeadm-config.yaml")
-		if err != nil {
-			return "", err
-		}
+	err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(vip, clusterName)), "/tmp/kubeadm-config.yaml")
+	if err != nil {
+		return "", err
 	}
 
 	out, err := n.sshClientWithTimeout(30 * time.Minute).Collect("sudo kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs")
@@ -129,27 +106,7 @@ func (n *MasterNode) Install(availability *common.HighAvailability) error {
 
 	osType := n.determineOS()
 
-	fmt.Println("os determined " + osType)
-
-	var cmds []string
-
-	if osType == Ubuntu {
-		cmds = ubuntu.GenerateCommands()
-
-		err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
-		if err != nil {
-			return err
-		}
-
-	} else if osType == Centos || osType == RedHat {
-		cmds = centos.GenerateCommands()
-		err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
-		if err != nil {
-			return err
-		}
-	}
-
-	err := n.sshClientWithTimeout(30 * time.Minute).Run(cmds)
+	err := n.sshClientWithTimeout(30 * time.Minute).Run(osType.Commands())
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,19 @@
-package centos
+package osType
 
-func GenerateCommands() []string {
+type Centos struct {
+}
+
+func (c *Centos) InstallDocker() []string {
+	return []string{
+		"sudo yum install -y yum-utils device-mapper-persistent-data lvm2",
+		"sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
+		"sudo yum install docker",
+		"sudo systemctl start docker",
+		"sudo systemctl enable docker",
+	}
+}
+
+func (c *Centos) Commands() []string {
 	cmds := []string{
 		`cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
@@ -21,12 +34,9 @@ net.bridge.bridge-nf-call-iptables = 1
 EOF`,
 		"sysctl --system",
 		"lsmod | grep br_netfilter",
-		"sudo yum install -y yum-utils device-mapper-persistent-data lvm2",
-		"sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
-		"sudo yum install docker",
-		"sudo systemctl start docker",
-		"sudo systemctl enable docker",
 	}
+
+	cmds = append(cmds, c.InstallDocker()...)
 
 	return cmds
 }

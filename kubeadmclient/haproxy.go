@@ -2,12 +2,9 @@ package kubeadmclient
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
-
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ubuntu"
 )
 
 type HaProxyNode struct {
@@ -56,32 +53,25 @@ func (n *HaProxyNode) Install(masterIPs []string) error {
 
 	osType := n.determineOS()
 
-	if osType == Ubuntu {
-
-		if err := n.sshClientWithTimeout(20 * time.Minute).Run(ubuntu.InstallDocker()); err != nil {
-			return err
-		}
-
-		if err := n.sshClient().ScpToWithData([]byte(n.generateConfig(masterIPs)), "/tmp/haproxy.cfg"); err != nil {
-			return err
-		}
-
-		if err := n.sshClient().Run([]string{
-			"sudo mkdir -p /usr/local/etc/haproxy/",
-			"sudo chown $USER:$USER /usr/local/etc/haproxy/",
-			"sudo cp /tmp/haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg",
-		}); err != nil {
-			return err
-		}
-
-		_, err := n.sshClientWithTimeout(20 * time.Minute).Collect("sudo docker run -d --network=host -it --restart=always -v /usr/local/etc/haproxy/:/usr/local/etc/haproxy/:ro --name kubernetes-apiserver-haproxy haproxy:1.7")
-		if err != nil {
-			return err
-		}
+	if err := n.sshClientWithTimeout(20 * time.Minute).Run(osType.InstallDocker()); err != nil {
+		return err
 	}
 
-	if osType == UnknownOS {
-		log.Fatal("os type could not be determined")
+	if err := n.sshClient().ScpToWithData([]byte(n.generateConfig(masterIPs)), "/tmp/haproxy.cfg"); err != nil {
+		return err
+	}
+
+	if err := n.sshClient().Run([]string{
+		"sudo mkdir -p /usr/local/etc/haproxy/",
+		"sudo chown $USER:$USER /usr/local/etc/haproxy/",
+		"sudo cp /tmp/haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg",
+	}); err != nil {
+		return err
+	}
+
+	_, err := n.sshClientWithTimeout(20 * time.Minute).Collect("sudo docker run -d --network=host -it --restart=always -v /usr/local/etc/haproxy/:/usr/local/etc/haproxy/:ro --name kubernetes-apiserver-haproxy haproxy:1.7")
+	if err != nil {
+		return err
 	}
 
 	return nil

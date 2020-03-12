@@ -108,6 +108,11 @@ if err := workerNode.Install(joinCommand); err != nil {
 }
 ```
 
+#### Things to be noted
+- This has been only tested on ubuntu. If you want this orchestration to be tested on centos or redhat, 
+please create a github issue.
+- Please make sure the user with which you create the VMs are passwordless sudoers.
+
 #### Recent changes
 - Added support for HA cluster
 - Parallel worker node provisioning
@@ -117,6 +122,7 @@ if err := workerNode.Install(joinCommand); err != nil {
 
 #### Roadmap
 - CLI support for baremetal, gke, aks, eks, digitalocean
+- Testing this orchestration on centos
 - use configuration file for the cli
 - Support Multicloud providers, VM hypervisors
 
