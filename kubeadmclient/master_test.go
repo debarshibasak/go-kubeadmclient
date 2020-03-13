@@ -9,7 +9,7 @@ import (
 func TestCreateCluster(t *testing.T) {
 
 	log.Println("starting master node creation")
-	masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/Users/debarshibasak/.ssh/id_rsa")
+	masterNode := NewMasterNode("ubuntu", "192.168.64.16", "/Users//.ssh/id_rsa")
 	if err := masterNode.Install(nil); err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestCreateCluster(t *testing.T) {
 
 	log.Println("creating worker node")
 
-	workerNode := NewWorkerNode("ubuntu", "192.168.64.15", "/Users/debarshibasak/.ssh/id_rsa")
+	workerNode := NewWorkerNode("ubuntu", "192.168.64.15", "/Users//.ssh/id_rsa")
 
 	if err := workerNode.Install(joinCommand); err != nil {
 		log.Fatal(err)
