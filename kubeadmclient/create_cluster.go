@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+//Reference - https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta1
+
 type Setup int
 
 const (
@@ -59,6 +61,7 @@ type Kubeadm struct {
 	ApplyFiles     []string
 	PodNetwork     string
 	ServiceNetwork string
+	DNSDomain      string
 	VerboseMode    bool
 	Netorking      *Networking
 }
@@ -82,16 +85,48 @@ func (k *Kubeadm) determineSetup() Setup {
 	return UNKNOWN
 }
 
+func (k *Kubeadm) validateAndUpdateDefault() error {
+
+	if len(k.MasterNodes) == 0 {
+		return errors.New("no master specified")
+	}
+
+	if k.ClusterName == "" {
+		return errors.New("cluster name is empty")
+	}
+
+	if k.PodNetwork == "" {
+		k.PodNetwork = "10.233.64.0/18"
+	}
+
+	if k.ServiceNetwork == "" {
+		k.ServiceNetwork = "10.233.0.0/18"
+	}
+
+	if k.DNSDomain == "" {
+		k.DNSDomain = "cluster.local"
+	}
+
+	return nil
+
+}
+
 //Creates cluster give a list of master nodes, worker nodes and then applies required kubernetes manifests*/
 func (k *Kubeadm) CreateCluster() error {
-	if k.ClusterName == "" {
-		return errors.New("cluster name is not set")
-	}
 
 	var (
 		joinCommand string
 		err         error
 	)
+
+	if k.ClusterName == "" {
+		return errors.New("cluster name is not set")
+	}
+
+	err = k.validateAndUpdateDefault()
+	if err != nil {
+		return err
+	}
 
 	startTime := time.Now()
 

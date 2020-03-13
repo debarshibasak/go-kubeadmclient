@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
 	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 	"github.com/google/uuid"
 )
@@ -80,7 +79,7 @@ func (n *MasterNode) GetJoinCommand() (string, error) {
 	return n.sshClient().Collect("sudo kubeadm token create --print-join-command")
 }
 
-func (n *MasterNode) installAndFetchCommand(clusterName string, vip string) (string, error) {
+func (n *MasterNode) installAndFetchCommand(kubeadm Kubeadm, vip string) (string, error) {
 
 	osType := n.determineOS()
 
@@ -89,7 +88,7 @@ func (n *MasterNode) installAndFetchCommand(clusterName string, vip string) (str
 		return "", err
 	}
 
-	err = n.sshClient().ScpToWithData([]byte(common.GenerateKubeadmConfig(vip, clusterName)), "/tmp/kubeadm-config.yaml")
+	err = n.sshClient().ScpToWithData([]byte(generateKubeadmConfig(vip, kubeadm)), "/tmp/kubeadm-config.yaml")
 	if err != nil {
 		return "", err
 	}
@@ -103,7 +102,7 @@ func (n *MasterNode) installAndFetchCommand(clusterName string, vip string) (str
 	return getControlPlaneJoinCommand(out), nil
 }
 
-func (n *MasterNode) Install(availability *common.HighAvailability) error {
+func (n *MasterNode) Install(availability *HighAvailability) error {
 
 	osType := n.determineOS()
 

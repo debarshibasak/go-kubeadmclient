@@ -1,7 +1,6 @@
 package kubeadmclient
 
 import (
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
 	"github.com/pkg/errors"
 )
 
@@ -41,13 +40,13 @@ func (k *Kubeadm) setupHAMaster(vip string) (string, error) {
 	primaryMaster := k.MasterNodes[0]
 	primaryMaster.verboseMode = k.VerboseMode
 
-	masterJoinCommand, err := primaryMaster.installAndFetchCommand(k.ClusterName, vip)
+	masterJoinCommand, err := primaryMaster.installAndFetchCommand(*k, vip)
 	if err != nil {
 		return "", err
 	}
 
 	for _, master := range k.MasterNodes[1:len(k.MasterNodes)] {
-		err := master.Install(&common.HighAvailability{JoinCommand: masterJoinCommand})
+		err := master.Install(&HighAvailability{JoinCommand: masterJoinCommand})
 		if err != nil {
 			return "", err
 		}

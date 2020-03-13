@@ -1,4 +1,4 @@
-package common
+package kubeadmclient
 
 import (
 	"os"
@@ -27,7 +27,7 @@ func PublicKeyExists() (string, string, error) {
 	}
 }
 
-func GenerateKubeadmConfig(ip string, clusterName string) string {
+func generateKubeadmConfig(ip string, kubeadm Kubeadm) string {
 	return `
 apiVersion: kubeadm.k8s.io/v1beta1
 kind: ClusterConfiguration
@@ -37,8 +37,9 @@ apiServer:
    - "` + ip + `"
 controlPlaneEndpoint: "` + ip + `:6443"
 networking:
-  podSubnet: 10.244.0.0/16
-  clusterName: "` + clusterName + `"
+  podSubnet: ` + kubeadm.PodNetwork + `
+  serviceSubnet: ` + kubeadm.ServiceNetwork + `
+  clusterName: "` + kubeadm.ClusterName + `"
 `
 }
 
