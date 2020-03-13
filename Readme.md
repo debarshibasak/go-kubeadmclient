@@ -1,8 +1,22 @@
 # go-kubeadmclient
 
+
+### What is go-kubeadmclient?
+
 Golang SDK for creating kubernetes clusters and kubectl. The library automatically detects the operating system 
 and then creates the cluster for that particular os.
 
+### Why is go-kubeadmclient?
+
+Currently the only way to create clusters on-prem/vms/baremetal machines is using ansible script or using kubespray.
+`go-kubeadmclient` empowers you with sdk to create cluster so that you can build you logically build clusters.
+
+#### Install
+```
+go get github.com/debarshibasak/go-kubeadmclient
+```
+
+#### SDK overview
 
 Create a NonHA Cluster With code. For example:
 
@@ -96,6 +110,9 @@ if err := workerNode.Install(joinCommand); err != nil {
     log.Fatal(err)
 }
 ```
+
+### Projects that use go-kubeadmclient
+- [Kubestrike](https://github.com/debarshibasak/kubestrike)
 
 #### Things to be noted
 - This has been only tested on ubuntu. If you want this orchestration to be tested on centos or redhat, 
