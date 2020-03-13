@@ -16,6 +16,41 @@ const (
 	NONHA   Setup = 2
 )
 
+type Networking struct {
+	Manifests string
+	Name      string
+}
+
+func LookupNetworking(cni string) *Networking {
+	switch cni {
+	case "flannel":
+		return Flannel
+	case "canal":
+		return Canal
+	case "Calico":
+		return Calico
+	default:
+		return nil
+	}
+}
+
+var (
+	Flannel = &Networking{
+		Manifests: "https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml",
+		Name:      "flannel",
+	}
+
+	Canal = &Networking{
+		Manifests: "https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml",
+		Name:      "canal",
+	}
+
+	Calico = &Networking{
+		Manifests: "https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml",
+		Name:      "calico",
+	}
+)
+
 type Kubeadm struct {
 	ClusterName    string
 	MasterNodes    []*MasterNode
@@ -25,6 +60,7 @@ type Kubeadm struct {
 	PodNetwork     string
 	ServiceNetwork string
 	VerboseMode    bool
+	Netorking      *Networking
 }
 
 func (k *Kubeadm) GetKubeConfig() (string, error) {
@@ -84,6 +120,14 @@ func (k *Kubeadm) CreateCluster() error {
 
 	for _, file := range k.ApplyFiles {
 		err := k.MasterNodes[0].ApplyFile(file)
+		if err != nil {
+			return err
+		}
+	}
+
+	if k.Netorking != nil {
+		log.Printf("installing networking plugin = %v", k.Netorking.Name)
+		err := k.MasterNodes[0].ApplyFile(k.Netorking.Manifests)
 		if err != nil {
 			return err
 		}

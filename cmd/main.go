@@ -68,6 +68,18 @@ func main() {
 				log.Fatal(err)
 			}
 
+			var networking *kubeadmclient.Networking
+
+			cni := c.String("cni")
+			if cni == "" {
+				networking = kubeadmclient.Flannel
+			} else {
+				networking := kubeadmclient.LookupNetworking(cni)
+				if networking == nil {
+					log.Fatal("network plugin in empty")
+				}
+			}
+
 			log.Println("creating cluster...")
 
 			kubeadmClient := kubeadmclient.Kubeadm{
@@ -75,10 +87,8 @@ func main() {
 				HaProxyNode: haproxy,
 				MasterNodes: masterNodes,
 				WorkerNodes: workerNodes,
-				ApplyFiles: []string{
-					"https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml",
-				},
 				VerboseMode: c.Bool("verbose"),
+				Netorking:   networking,
 			}
 
 			err = kubeadmClient.CreateCluster()
