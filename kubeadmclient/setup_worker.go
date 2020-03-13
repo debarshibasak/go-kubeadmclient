@@ -8,7 +8,6 @@ import (
 func (k *Kubeadm) setupWorkers(joinCommand string) error {
 	var workerWG sync.WaitGroup
 	if len(k.WorkerNodes) > 0 {
-
 		for _, workerNode := range k.WorkerNodes {
 
 			workerWG.Add(1)

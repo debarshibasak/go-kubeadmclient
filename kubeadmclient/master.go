@@ -19,12 +19,13 @@ func NewMasterNode(username string,
 	ipOrHost string,
 	privateKeyLocation string) *MasterNode {
 
-	return &MasterNode{&Node{
-		username:           username,
-		ipOrHost:           ipOrHost,
-		privateKeyLocation: privateKeyLocation,
-		clientID:           uuid.New().String(),
-	},
+	return &MasterNode{
+		&Node{
+			username:           username,
+			ipOrHost:           ipOrHost,
+			privateKeyLocation: privateKeyLocation,
+			clientID:           uuid.New().String(),
+		},
 	}
 }
 

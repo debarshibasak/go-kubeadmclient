@@ -40,17 +40,6 @@ func main(){
 }
 ```
 
-#### Using CLI to create clusters 
-
-Build the project as follows
-
-```
-go build -o kubeorchestrator cmd/main.go 
-./kubeorchestrator --provider multipass --master-count 2 --worker-count 2 --cluster-name test
-```
-This command will actually acquire 2+2+1 instances in multipass. 1 extra instance to provision HAProxy.
-Currently the cli only supports multipass.
-
 #### Breaking down the SDK
 
 You can also create individual master and workers using the SDK too. For example, to create master node:
