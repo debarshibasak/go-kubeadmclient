@@ -46,23 +46,23 @@ func (k *Kubeadm) setupHAMaster(vip string) (string, error) {
 	}
 
 	for _, master := range k.MasterNodes[1:len(k.MasterNodes)] {
-		err := master.Install(*k, &HighAvailability{JoinCommand: masterJoinCommand})
+		err := master.install(*k, &highAvailability{JoinCommand: masterJoinCommand})
 		if err != nil {
 			return "", err
 		}
 	}
 
-	err = primaryMaster.ChangePermissionKubeconfig()
+	err = primaryMaster.changePermissionKubeconfig()
 	if err != nil {
 		return "", err
 	}
 
-	err = primaryMaster.TaintAsMaster()
+	err = primaryMaster.taintAsMaster()
 	if err != nil {
 		return "", err
 	}
 
-	joinCommand, err = primaryMaster.GetJoinCommand()
+	joinCommand, err = primaryMaster.getJoinCommand()
 	if err != nil {
 		return "", err
 	}
@@ -77,22 +77,22 @@ func (k *Kubeadm) setupNonHAMaster() (string, error) {
 	masterNode := k.MasterNodes[0]
 	masterNode.verboseMode = k.VerboseMode
 
-	err := masterNode.Install(*k, nil)
+	err := masterNode.install(*k, nil)
 	if err != nil {
 		return "", err
 	}
 
-	err = masterNode.ChangePermissionKubeconfig()
+	err = masterNode.changePermissionKubeconfig()
 	if err != nil {
 		return "", err
 	}
 
-	err = masterNode.TaintAsMaster()
+	err = masterNode.taintAsMaster()
 	if err != nil {
 		return "", err
 	}
 
-	joinCommand, err = masterNode.GetJoinCommand()
+	joinCommand, err = masterNode.getJoinCommand()
 	if err != nil {
 		return "", err
 	}

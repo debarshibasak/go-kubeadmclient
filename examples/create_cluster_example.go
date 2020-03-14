@@ -1,15 +1,16 @@
+// This is package that list example for creating clusters
 package examples
 
 import (
 	"log"
 
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 )
 
-/*
-This is an example for non-HA cluster creation.
-This will create single controlplanes for the cluster and add the nodes to it.
-*/
+// This is an example for non-HA cluster creation.
+// This will create single controlplanes for the cluster and add the nodes to it.
 func CreateClusterExampleNonHA() {
 	//Create clusters with only master machine
 	k := kubeadmclient.Kubeadm{
@@ -33,7 +34,7 @@ func CreateClusterExampleNonHA() {
 				"/Users//.ssh/id_rsa",
 			),
 		},
-		Netorking:   kubeadmclient.Flannel,
+		Netorking:   networking.Flannel,
 		VerboseMode: false,
 	}
 
@@ -83,7 +84,7 @@ func CreateClusterExampleHA() {
 				"/Users//.ssh/id_rsa",
 			),
 		},
-		Netorking:   kubeadmclient.Flannel,
+		Netorking:   networking.Flannel,
 		VerboseMode: false,
 	}
 

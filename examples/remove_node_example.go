@@ -1,19 +1,14 @@
-package kubeadmclient_test
+// This is package that list example for removing nodes
+package examples
 
 import (
-	"log"
-	"testing"
-
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
-
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
 )
 
-func TestKubeadm_CreateCluster2(t *testing.T) {
-
-}
-
-func TestKubeadm_CreateCluster(t *testing.T) {
+// This is an example for removing node from an existing cluster.
+// You have to specify the one of the masters and the nodes you want to remove.
+func RemoveNodeExample() {
 
 	k := kubeadmclient.Kubeadm{
 		ClusterName: "test",
@@ -24,16 +19,20 @@ func TestKubeadm_CreateCluster(t *testing.T) {
 				"USER_HOME/.ssh/id_rsa",
 			),
 		},
-
 		WorkerNodes: []*kubeadmclient.WorkerNode{
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.48",
+				"192.168.64.49",
 				"USER_HOME/.ssh/id_rsa",
 			),
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.49",
+				"192.168.64.50",
+				"USER_HOME/.ssh/id_rsa",
+			),
+			kubeadmclient.NewWorkerNode(
+				"ubuntu",
+				"192.168.64.51",
 				"USER_HOME/.ssh/id_rsa",
 			),
 		},
@@ -42,8 +41,7 @@ func TestKubeadm_CreateCluster(t *testing.T) {
 		Netorking:         networking.Flannel,
 	}
 
-	err := k.CreateCluster()
-	if err != nil {
-		log.Fatal(err)
+	if err := k.RemoveNode(); err != nil {
+		t.Fatal(err)
 	}
 }

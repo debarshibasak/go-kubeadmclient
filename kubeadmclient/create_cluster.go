@@ -8,7 +8,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-//Creates cluster give a list of master nodes, worker nodes and then applies required kubernetes manifests*/
+// CreateCluster will take the incoming Kubeadm struct.
+// It will create an HA or NonHA cluster based on incoming Kubeadm struct.
+// In non-HA mode it will provision a master, provision workers and add them to the cluster
+// In HA mode, it will provision HAProxy, master and workers and then add them to the cluster.
+// You can also specify the network plugin, pod cidr range, service cidr range and dns domain that should used in the cluster.
+// There parameters are options and default set it picked up on initialization.
 func (k *Kubeadm) CreateCluster() error {
 
 	var (
@@ -51,7 +56,7 @@ func (k *Kubeadm) CreateCluster() error {
 	log.Printf("time taken to create workers = %v", time.Since(workerCreationTime))
 
 	for _, file := range k.ApplyFiles {
-		err := k.MasterNodes[0].ApplyFile(file)
+		err := k.MasterNodes[0].applyFile(file)
 		if err != nil {
 			return err
 		}
@@ -59,7 +64,7 @@ func (k *Kubeadm) CreateCluster() error {
 
 	if k.Netorking != nil {
 		log.Printf("installing networking plugin = %v", k.Netorking.Name)
-		err := k.MasterNodes[0].ApplyFile(k.Netorking.Manifests)
+		err := k.MasterNodes[0].applyFile(k.Netorking.Manifests)
 		if err != nil {
 			return err
 		}

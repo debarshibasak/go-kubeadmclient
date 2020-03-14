@@ -12,23 +12,38 @@ func TestKubeadm_AddNode(t *testing.T) {
 		MasterNodes: []*kubeadmclient.MasterNode{
 			kubeadmclient.NewMasterNode(
 				"ubuntu",
-				"192.168.64.33",
-				"/Users/debarshibasak/.ssh/id_rsa",
+				"192.168.64.47",
+				"USER_HOME/.ssh/id_rsa",
 			),
 		},
 		WorkerNodes: []*kubeadmclient.WorkerNode{
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.37",
-				"/Users/debarshibasak/.ssh/id_rsa",
+				"192.168.64.51",
+				"USER_HOME/.ssh/id_rsa",
 			),
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.38",
-				"/Users/debarshibasak/.ssh/id_rsa",
+				"192.168.64.52",
+				"USER_HOME/.ssh/id_rsa",
+			),
+			kubeadmclient.NewWorkerNode(
+				"ubuntu",
+				"192.168.64.50",
+				"USER_HOME/.ssh/id_rsa",
+			),
+			kubeadmclient.NewWorkerNode(
+				"ubuntu",
+				"192.168.64.48",
+				"USER_HOME/.ssh/id_rsa",
+			),
+			kubeadmclient.NewWorkerNode(
+				"ubuntu",
+				"192.168.64.49",
+				"USER_HOME/.ssh/id_rsa",
 			),
 		},
-		SkipAddWorkerFailure: true,
+		SkipWorkerFailure: true,
 	}
 
 	err := k.AddNode()

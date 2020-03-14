@@ -1,8 +1,12 @@
+// Package kubeadmclient provides kubernetes cluster operations function.
+// You can create clusters, add nodes and remove nodes.
 package kubeadmclient
 
 import (
 	"errors"
 	"log"
+
+	"time"
 )
 
 var (
@@ -10,7 +14,11 @@ var (
 	errWorkerNotSpecified = errors.New("worker not specified")
 )
 
+// AddNode will take the incoming Kubeadm struct.
+// Fetch the joinCommand from master, provision nodes and add them to the cluster.
 func (k *Kubeadm) AddNode() error {
+
+	startTime := time.Now()
 
 	if len(k.MasterNodes) == 0 {
 		return errMasterNotSpecified
@@ -20,19 +28,21 @@ func (k *Kubeadm) AddNode() error {
 		return errWorkerNotSpecified
 	}
 
-	joinCommand, err := k.MasterNodes[0].GetJoinCommand()
+	joinCommand, err := k.MasterNodes[0].getJoinCommand()
 	if err != nil {
 		return err
 	}
 
 	if err := k.setupWorkers(joinCommand); err != nil {
 		log.Println(err)
-		if !k.SkipAddWorkerFailure {
+		if !k.SkipWorkerFailure {
 			return err
 		}
 
 		return nil
 	}
+
+	log.Println("time taken = " + time.Since(startTime).String())
 
 	return err
 }

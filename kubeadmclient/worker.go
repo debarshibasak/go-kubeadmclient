@@ -25,7 +25,48 @@ func NewWorkerNode(username string,
 	}
 }
 
-func (n *WorkerNode) Install(joinCommand string) error {
+func (n *WorkerNode) ctlCommand(cmd string) error {
+
+	return n.sshClientWithTimeout(1 * time.Minute).Run([]string{
+		"sudo KUBECONFIG=/etc/kubernetes/kubelet.conf " + cmd,
+	})
+}
+
+func (n *WorkerNode) getHostName() (string, error) {
+
+	hostname, err := n.sshClient().Collect("hostname")
+	if err != nil {
+		return "", err
+	}
+
+	return hostname, nil
+}
+
+func (n *WorkerNode) drainAndReset() (string, error) {
+
+	osType := n.determineOS()
+
+	if osType == nil {
+		return "", errors.New("could not determine ostype, may be it could not ssh into it, or does not support the os")
+	}
+
+	hostname, err := n.getHostName()
+	if err != nil {
+		return "", err
+	}
+
+	if err := n.ctlCommand("kubectl drain `hostname`"); err != nil {
+		return hostname, err
+	}
+
+	if err := n.sshClientWithTimeout(30 * time.Minute).Run([]string{"sudo kubeadm reset -f"}); err != nil {
+		return hostname, err
+	}
+
+	return hostname, nil
+}
+
+func (n *WorkerNode) install(joinCommand string) error {
 
 	osType := n.determineOS()
 

@@ -9,14 +9,14 @@ import (
 
 var errWhileAddWorker = errors.New("error while adding worker")
 
-type WorkerError struct {
+type workerError struct {
 	worker *WorkerNode
 	err    error
 }
 
 func (k *Kubeadm) setupWorkers(joinCommand string) error {
 	var workerWG sync.WaitGroup
-	errc := make(chan *WorkerError, 1)
+	errc := make(chan *workerError, 1)
 
 	if len(k.WorkerNodes) > 0 {
 		for i, workerNode := range k.WorkerNodes {
@@ -24,8 +24,8 @@ func (k *Kubeadm) setupWorkers(joinCommand string) error {
 			workerWG.Add(1)
 
 			go func(workerWG *sync.WaitGroup, node *WorkerNode, i int) {
-				if err := node.Install(joinCommand); err != nil {
-					errc <- &WorkerError{
+				if err := node.install(joinCommand); err != nil {
+					errc <- &workerError{
 						worker: node,
 						err:    err,
 					}
@@ -43,7 +43,7 @@ func (k *Kubeadm) setupWorkers(joinCommand string) error {
 		if errWorker.err != nil {
 			if errWorker.err == errWhileAddWorker {
 				errWrk := errors.New("worker=" + errWorker.worker.ipOrHost + "err=" + errWorker.err.Error())
-				if !k.SkipAddWorkerFailure {
+				if !k.SkipWorkerFailure {
 					return errWrk
 				}
 				log.Println(errWrk.Error() + " however, skipping this error")

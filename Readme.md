@@ -2,7 +2,13 @@
 
 ### What is go-kubeadmclient?
 
-Golang SDK for creating kubernetes clusters. You can add nodes a cluster too. The library automatically detects the operating system 
+Golang SDK for creating kubernetes clusters. Operations that are currently supported are -
+
+- Create Cluster
+- Add nodes
+- Remove nodes
+ 
+The library automatically detects the operating system 
 and then perform the operation for that particular os.
 
 ### Why is go-kubeadmclient?
@@ -10,7 +16,7 @@ and then perform the operation for that particular os.
 Currently the only way to manage cluster operation on-prem/VM/baremetal machines are using custom ansible script or using kubespray.
 `go-kubeadmclient` empowers you with a sdk to create cluster so that you can build your clusters based on logic/workflow etc. 
 There are various projects for automation for custom kubernetes distribution. We believe something similar lacks for upstream kubernetes distribution. 
-There aren't many SDK based approach to managing cluster operation therefore this project was initiated.
+There aren't many SDK based approach to managing cluster operation therefore this project was initiated. 
 
 #### Install
 ```
@@ -42,7 +48,7 @@ func main(){
 			 kubeadmclient.NewWorkerNode("ubuntu", "192.168.1.11", "/home/debarshi/.ssh/id_rsa"),
 			 kubeadmclient.NewWorkerNode("ubuntu", "192.168.1.12", "/home/debarshi/.ssh/id_rsa"),
 		 },
-	      Netorking:   kubeadmclient.Flannel,
+	      Netorking:   networking.Flannel,
           VerboseMode: false,
 	 }
 
@@ -82,6 +88,7 @@ please create a github issue.
 - Add Support for offline installation
 - Add Support for remove node
 - Add support for delete cluster
+- Smart use MaxSession from ssh_config to buffer adding nodes
 
 #### Supporting this project
 - I need funding for testing this project

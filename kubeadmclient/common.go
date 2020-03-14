@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-type HighAvailability struct {
+type highAvailability struct {
 	JoinCommand string
 }
 
@@ -26,6 +26,7 @@ func PublicKeyExists() (string, string, error) {
 	return "", "", err
 }
 
+//https://www.jordyverbeek.nl/nieuws/kubernetes-ha-cluster-installation-guide
 func generateKubeadmConfig(ip string, kubeadm Kubeadm) string {
 	return `
 apiVersion: kubeadm.k8s.io/v1beta1
@@ -39,36 +40,5 @@ networking:
   podSubnet: ` + kubeadm.PodNetwork + `
   serviceSubnet: ` + kubeadm.ServiceNetwork + `
   clusterName: "` + kubeadm.ClusterName + `"
-`
-}
-
-//https://www.jordyverbeek.nl/nieuws/kubernetes-ha-cluster-installation-guide
-func GenerateKubeInitConfig(ip string) string {
-
-	return `
-apiVersion: kubeadm.k8s.io/v1beta1
-kind: ClusterConfiguration
-kubernetesVersion: stable
-apiServerCertSANs:
-- "k8s.apiserver.cluster"
-- ` + ip + `
-controlPlaneEndpoint: "k8s.apiserver.cluster:443"
-etcd:
-  local:
-    extraArgs:
-      listen-client-urls: "https://127.0.0.1:2379,https://` + ip + `:2379"
-      advertise-client-urls: "https://` + ip + `:2379"
-      listen-peer-urls: "https://` + ip + `:2380"
-      initial-advertise-peer-urls: "https://` + ip + `:2380"
-      initial-cluster: "k8s-master01=https://` + ip + `:2380"
-    serverCertSANs:
-      - ` + ip + `
-    peerCertSANs:
-      - ` + ip + `
-apiServerExtraArgs:
-  service-node-port-range: 8000-31274
-networking:
-    # For flannel use 10.244.0.0/16, calico uses 192.168.0.0/16
-    podSubnet: "10.244.0.0/16"
 `
 }

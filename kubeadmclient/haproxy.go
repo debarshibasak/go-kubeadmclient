@@ -49,7 +49,7 @@ backend k8s-api
 ` + serverCheckBlock
 }
 
-func (n *HaProxyNode) Install(masterIPs []string) error {
+func (n *HaProxyNode) install(masterIPs []string) error {
 
 	osType := n.determineOS()
 
