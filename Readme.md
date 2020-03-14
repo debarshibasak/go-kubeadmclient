@@ -133,3 +133,10 @@ please create a github issue.
 - More structure approach towards CNI, pod cidrs, service cidrs, etc.
 - Support for offline installation
 
+
+#### Supporting this project
+- I need funding for testing this project
+- If you want to join this project, please feel free to create pull requests.
+- You can support my effort with donation at patreon
+
+<a href="https://www.patreon.com/bePatron?u=31747625" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>

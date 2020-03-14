@@ -102,7 +102,7 @@ func (n *MasterNode) installAndFetchCommand(kubeadm Kubeadm, vip string) (string
 	return getControlPlaneJoinCommand(out), nil
 }
 
-func (n *MasterNode) Install(availability *HighAvailability) error {
+func (n *MasterNode) Install(kubeadm Kubeadm, availability *HighAvailability) error {
 
 	osType := n.determineOS()
 
@@ -116,7 +116,7 @@ func (n *MasterNode) Install(availability *HighAvailability) error {
 	if availability != nil {
 		s = "sudo " + availability.JoinCommand
 	} else {
-		s = "sudo kubeadm init --pod-network-cidr=10.244.0.0/16"
+		s = "sudo kubeadm init --pod-network-cidr=" + kubeadm.PodNetwork + " --service-cidr=" + kubeadm.ServiceNetwork + " --service-dns-domain=" + kubeadm.DNSDomain
 	}
 
 	return n.sshClientWithTimeout(30 * time.Minute).Run([]string{s})

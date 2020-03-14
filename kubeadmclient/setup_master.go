@@ -46,7 +46,7 @@ func (k *Kubeadm) setupHAMaster(vip string) (string, error) {
 	}
 
 	for _, master := range k.MasterNodes[1:len(k.MasterNodes)] {
-		err := master.Install(&HighAvailability{JoinCommand: masterJoinCommand})
+		err := master.Install(*k, &HighAvailability{JoinCommand: masterJoinCommand})
 		if err != nil {
 			return "", err
 		}
@@ -77,7 +77,7 @@ func (k *Kubeadm) setupNonHAMaster() (string, error) {
 	masterNode := k.MasterNodes[0]
 	masterNode.verboseMode = k.VerboseMode
 
-	err := masterNode.Install(nil)
+	err := masterNode.Install(*k, nil)
 	if err != nil {
 		return "", err
 	}
