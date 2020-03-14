@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 	"github.com/google/uuid"
 )
@@ -46,7 +48,7 @@ func (n *MasterNode) ApplyFlannel() error {
 
 func (n *MasterNode) GetToken() (string, error) {
 
-	sh := sshclient.SshConnection{
+	sh := sshclient.SSHConnection{
 		Username:    n.username,
 		IP:          n.ipOrHost,
 		KeyLocation: n.privateKeyLocation,
@@ -82,6 +84,10 @@ func (n *MasterNode) GetJoinCommand() (string, error) {
 func (n *MasterNode) installAndFetchCommand(kubeadm Kubeadm, vip string) (string, error) {
 
 	osType := n.determineOS()
+
+	if osType == nil {
+		return "", errors.New("ostpye not found")
+	}
 
 	err := n.sshClient().Run(osType.Commands())
 	if err != nil {

@@ -19,12 +19,11 @@ func PublicKeyExists() (string, string, error) {
 	if _, err := os.Stat(publicKeyLocation); err == nil {
 		if _, err := os.Stat(privateKeyLocation); err == nil {
 			return publicKeyLocation, privateKeyLocation, nil
-		} else {
-			return "", "", err
 		}
-	} else {
 		return "", "", err
 	}
+
+	return "", "", err
 }
 
 func generateKubeadmConfig(ip string, kubeadm Kubeadm) string {

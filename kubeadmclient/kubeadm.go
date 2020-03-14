@@ -48,16 +48,17 @@ var (
 )
 
 type Kubeadm struct {
-	ClusterName    string
-	MasterNodes    []*MasterNode
-	WorkerNodes    []*WorkerNode
-	HaProxyNode    *HaProxyNode
-	ApplyFiles     []string
-	PodNetwork     string
-	ServiceNetwork string
-	DNSDomain      string
-	VerboseMode    bool
-	Netorking      *Networking
+	ClusterName          string
+	MasterNodes          []*MasterNode
+	WorkerNodes          []*WorkerNode
+	HaProxyNode          *HaProxyNode
+	ApplyFiles           []string
+	PodNetwork           string
+	ServiceNetwork       string
+	DNSDomain            string
+	VerboseMode          bool
+	Netorking            *Networking
+	SkipAddWorkerFailure bool
 }
 
 func (k *Kubeadm) GetKubeConfig() (string, error) {

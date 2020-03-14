@@ -3,12 +3,12 @@
 
 ### What is go-kubeadmclient?
 
-Golang SDK for creating kubernetes clusters and kubectl. The library automatically detects the operating system 
-and then creates the cluster for that particular os.
+Golang SDK for creating kubernetes clusters. You can add nodes a cluster too. The library automatically detects the operating system 
+and then perform the operation for that particular os.
 
 ### Why is go-kubeadmclient?
 
-Currently the only way to create clusters on-prem/vms/baremetal machines is using ansible script or using kubespray.
+Currently the only way to create clusters and add nodes on-prem/vms/baremetal machines is using ansible script or using kubespray.
 `go-kubeadmclient` empowers you with sdk to create cluster so that you can build you logically build clusters.
 
 #### Install

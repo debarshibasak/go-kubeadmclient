@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type SshConnection struct {
+type SSHConnection struct {
 	Timeout     time.Duration
 	Username    string
 	IP          string
@@ -22,7 +22,7 @@ type SshConnection struct {
 	ClientID    string
 }
 
-func (sh *SshConnection) Collect(cmd string) (string, error) {
+func (sh *SSHConnection) Collect(cmd string) (string, error) {
 	var signer ssh.Signer
 	var config *ssh.ClientConfig
 
@@ -74,7 +74,7 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println(cmd)
+	fmt.Println("[node: " + sh.IP + "] " + cmd)
 	writeCloudInfoOut, err := session.Output(fmt.Sprintf("sh -c '%v'", cmd))
 	if err != nil {
 		return "", err
@@ -84,7 +84,7 @@ func (sh *SshConnection) Collect(cmd string) (string, error) {
 
 }
 
-func (sh *SshConnection) ScpToWithData(data []byte, destination string) error {
+func (sh *SSHConnection) ScpToWithData(data []byte, destination string) error {
 
 	s := "/tmp/" + uuid.New().String()
 	err := ioutil.WriteFile(s, data, os.FileMode(0777))
@@ -95,7 +95,7 @@ func (sh *SshConnection) ScpToWithData(data []byte, destination string) error {
 	return sh.ScpTo(s, destination)
 }
 
-func (sh *SshConnection) ScpFrom(source string, destination string) error {
+func (sh *SSHConnection) ScpFrom(source string, destination string) error {
 	cmd := exec.Command("sh", "-c", "scp -i "+sh.KeyLocation+" "+source+" "+sh.Username+"@"+sh.IP+":"+destination)
 
 	out, err := cmd.CombinedOutput()
@@ -104,13 +104,13 @@ func (sh *SshConnection) ScpFrom(source string, destination string) error {
 	}
 
 	if sh.VerboseMode {
-		fmt.Println("[client_id: " + sh.ClientID + "]" + string(out))
+		fmt.Println("[node: " + sh.IP + "] " + string(out))
 	}
 
 	return err
 }
 
-func (sh *SshConnection) ScpTo(source string, destination string) error {
+func (sh *SSHConnection) ScpTo(source string, destination string) error {
 
 	c := "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i " + sh.KeyLocation + " " + source + " " + sh.Username + "@" + sh.IP + ":" + destination
 	fmt.Println(c)
@@ -121,13 +121,13 @@ func (sh *SshConnection) ScpTo(source string, destination string) error {
 	}
 
 	if sh.VerboseMode {
-		fmt.Println("[client_id: " + sh.ClientID + "]" + string(out))
+		fmt.Println("[node: " + sh.IP + "] " + string(out))
 	}
 
 	return err
 }
 
-func (sh *SshConnection) Run(cmd []string) error {
+func (sh *SSHConnection) Run(cmd []string) error {
 
 	var signer ssh.Signer
 	var config *ssh.ClientConfig
@@ -183,7 +183,7 @@ func (sh *SshConnection) Run(cmd []string) error {
 			return err
 		}
 
-		fmt.Println(ln)
+		fmt.Println("[node: " + sh.IP + "] " + ln)
 
 		writeCloudInfoOut, err := session.Output(fmt.Sprintf("sh -c '%v'", ln))
 		if err != nil {
@@ -193,7 +193,7 @@ func (sh *SshConnection) Run(cmd []string) error {
 		}
 
 		if sh.VerboseMode {
-			fmt.Println("[client_id: " + sh.ClientID + "]" + string(writeCloudInfoOut))
+			fmt.Println("[node: " + sh.IP + "] " + string(writeCloudInfoOut))
 		}
 
 		session.Close()
