@@ -1,6 +1,5 @@
 # go-kubeadmclient
 
-
 ### What is go-kubeadmclient?
 
 Golang SDK for creating kubernetes clusters. You can add nodes a cluster too. The library automatically detects the operating system 
@@ -8,8 +7,10 @@ and then perform the operation for that particular os.
 
 ### Why is go-kubeadmclient?
 
-Currently the only way to create clusters and add nodes on-prem/vms/baremetal machines is using ansible script or using kubespray.
-`go-kubeadmclient` empowers you with sdk to create cluster so that you can build you logically build clusters.
+Currently the only way to manage cluster operation on-prem/VM/baremetal machines are using custom ansible script or using kubespray.
+`go-kubeadmclient` empowers you with a sdk to create cluster so that you can build your clusters based on logic/workflow etc. 
+There are various projects for automation for custom kubernetes distribution. We believe something similar lacks for upstream kubernetes distribution. 
+There aren't many SDK based approach to managing cluster operation therefore this project was initiated.
 
 #### Install
 ```
@@ -67,7 +68,6 @@ The example requires an existing master that is setup and list of worker. The au
 - This has been only tested on ubuntu. If you want this orchestration to be tested on centos or redhat, 
 please create a github issue.
 - Please make sure the user with which you create the VMs are passwordless sudoers.
-- PodCidr is hardcoded. It will be remove and made into a variable in kubeadm very soon.
 
 #### Recent changes
 - Added support for HA cluster
@@ -75,19 +75,17 @@ please create a github issue.
 - Added support for multipass
 - Add HA Proxy Support for multi master setup
 - cli for creating cluster
+- More structure approach towards CNI, pod cidrs, service cidrs, dns domains etc.
 
 #### Roadmap
-- CLI support for baremetal, gke, aks, eks, digitalocean
-- Testing this orchestration on centos
-- use configuration file for the cli
-- Support Multicloud providers, VM hypervisors
-- More structure approach towards CNI, pod cidrs, service cidrs, etc.
-- Support for offline installation
-
+- Testing this orchestration on centos, redhat
+- Add Support for offline installation
+- Add Support for remove node
+- Add support for delete cluster
 
 #### Supporting this project
 - I need funding for testing this project
-- If you want to join this project, please feel free to create pull requests.
+- If you want to join this project, please feel free to create pull requests or message me.
 - You can support my effort with donation at [patreon](https://www.patreon.com/bePatron?u=31747625)
 
 <a href="https://www.patreon.com/bePatron?u=31747625" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
