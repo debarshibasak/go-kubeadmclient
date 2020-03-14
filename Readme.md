@@ -52,62 +52,11 @@ func main(){
 }
 ```
 
-#### Breaking down the SDK
+If you want to create and HA Cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/create_cluster_example.go#L50)
+The example sets up an HAProxy, master and workers.
 
-You can also create individual master and workers using the SDK too. For example, to create master node:
-```
-masterNode := kubeadmclient.NewMasterNode("ubuntu", "192.168.64.16", "/home/debarshibasak/.ssh/id_rsa")
-if err := masterNode.Install(false); err != nil {
-    log.Fatal(err)
-}
-```
-
-To Fetch kubeconfig
-
-```
-kubeconfig, err := masterNode.GetKubeConfig()
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-Then taint the node as master
-
-```
-err = masterNode.TaintAsMaster()
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-Apply a CNI plugin
-
-```
-err = masterNode.ApplyFile("https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml")
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-
-Fetch the joining string from the master node
-
-```
-joinCommand, err := masterNode.GetJoinCommand()
-if err != nil {
-        log.Fatal(err)
-}
-```
-
-..and then create worker nodes
-
-```
-workerNode := kubeadmclient.NewWorkerNode("ubuntu", "192.168.64.15", "/home/debarshibasak/.ssh/id_rsa")
-
-if err := workerNode.Install(joinCommand); err != nil {
-    log.Fatal(err)
-}
-```
+If you want to add nodes to an existing cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/add_node_example.go)
+The example requires an existing master that is setup and list of worker. The automation provisions workers and adds them to the cluster.
 
 ### Projects that use go-kubeadmclient
 - [Kubestrike](https://github.com/debarshibasak/kubestrike)
