@@ -9,33 +9,6 @@ import (
 
 func TestKubeadm_CreateCluster2(t *testing.T) {
 
-	//Create clusters with only master machine
-	k := kubeadmclient.Kubeadm{
-
-		MasterNodes: []*kubeadmclient.MasterNode{
-			kubeadmclient.NewMasterNode(
-				"ubuntu",
-				"192.168.64.51",
-				"/Users//.ssh/id_rsa",
-			),
-			kubeadmclient.NewMasterNode(
-				"ubuntu",
-				"192.168.64.50",
-				"/Users//.ssh/id_rsa",
-			),
-			kubeadmclient.NewMasterNode("ubuntu",
-				"192.168.64.52",
-				"/Users//.ssh/id_rsa",
-			),
-		},
-		Netorking:   kubeadmclient.Flannel,
-		VerboseMode: false,
-	}
-
-	err := k.CreateCluster()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func TestKubeadm_CreateCluster(t *testing.T) {
