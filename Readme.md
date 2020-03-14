@@ -75,7 +75,7 @@ This example requires an existing cluster, access to master node and list of wor
 - [Kubestrike](https://github.com/debarshibasak/kubestrike)
 
 #### Things to be noted
-- This has been only tested on ubuntu. If you want this orchestration to be tested on centos or redhat, 
+- This has been tested only on ubuntu. If you want this orchestration to be tested on centos or redhat, 
 please create a github issue.
 - Please make sure the user with which you create the VMs are passwordless sudoers.
 
