@@ -18,7 +18,7 @@ go get github.com/debarshibasak/go-kubeadmclient
 
 #### SDK overview
 
-Create a NonHA Cluster With code. For example:
+#### Create a NonHA Cluster With code.
 
 ```
 package main
@@ -52,9 +52,11 @@ func main(){
 }
 ```
 
+#### Creating HA cluster
 If you want to create and HA Cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/create_cluster_example.go#L50)
 The example sets up an HAProxy, master and workers.
 
+#### Adding node to existing cluster
 If you want to add nodes to an existing cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/add_node_example.go)
 The example requires an existing master that is setup and list of worker. The automation provisions workers and adds them to the cluster.
 
