@@ -67,6 +67,10 @@ The example sets up an HAProxy, master and workers.
 If you want to add nodes to an existing cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/add_node_example.go)
 The example requires an existing master that is setup and list of worker. The automation provisions workers and adds them to the cluster.
 
+#### Removing node from existing cluster
+if you want to remove node from an existing cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/remove_node_example.go)
+This example requires an existing cluster, access to master node and list of workers that has to be removed.
+
 ### Projects that use go-kubeadmclient
 - [Kubestrike](https://github.com/debarshibasak/kubestrike)
 
