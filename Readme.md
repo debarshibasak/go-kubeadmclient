@@ -110,7 +110,7 @@ please create a github issue.
 - Add Support for waiting till nodes are ready
 
 #### Supporting this project
-- I need funding for managing the automated testing infrastructure, maintaining this project, CI.
+- Donation is required for managing the automated testing infrastructure, maintaining this project, CI.
 - If you want to join this project, please feel free to create pull requests or message me.
 - You can support my effort with donation at [patreon](https://www.patreon.com/bePatron?u=31747625)
 - More than happy to talk about this in local meetups. Please feel free to approache me.
