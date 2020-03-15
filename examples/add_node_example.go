@@ -1,4 +1,4 @@
-// This is package that list example for adding nodes
+// Package examples for adding nodes
 package examples
 
 import (

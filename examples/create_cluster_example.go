@@ -1,4 +1,4 @@
-// This is package that list example for creating clusters
+// Package examples for creating clusters
 package examples
 
 import (

@@ -1,4 +1,4 @@
-// This is package that list example for removing nodes
+// Package examples for removing nodes
 package examples
 
 import (
