@@ -88,11 +88,11 @@ please create a github issue.
 - cli for creating cluster
 - More structure approach towards CNI, pod cidrs, service cidrs, dns domains etc.
 
-OS / Version | -- | --
------------- | -------------| -------------
-Ubuntu |Centos| Redhat
- + 18.04 | ! 7.x| n/a
- + 16.04 | ! 8.x| 
+#### Test matrix
+- Ubuntu 18.04, 16.04 (tested)
+- CentOS 7.x (not tested, but mostly possible)
+- CentOS 8.x (not tested)
+- RedHat (not available, please create issue list for that)
 
 #### Roadmap
 - Testing this orchestration on centos, redhat
