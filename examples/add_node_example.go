@@ -4,8 +4,6 @@ package examples
 import (
 	"log"
 
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
-
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 )
 
@@ -34,7 +32,6 @@ func AddNodeExample() {
 				"/Users//.ssh/id_rsa",
 			),
 		},
-		Netorking:   networking.Flannel,
 		VerboseMode: false,
 	}
 

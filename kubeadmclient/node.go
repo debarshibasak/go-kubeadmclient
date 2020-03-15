@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	osType "github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ostype"
 
 	"github.com/debarshibasak/go-kubeadmclient/sshclient"
@@ -23,27 +25,27 @@ func (n *Node) String() string {
 	return fmt.Sprintf("ip=%v username=%v key=%v", n.ipOrHost, n.username, n.privateKeyLocation)
 }
 
-func (n *Node) determineOS() osType.OsType {
+func (n *Node) determineOS() (osType.OsType, error) {
 
 	client := n.sshClient()
 	out, err := client.Collect("uname -a")
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	if strings.Contains(out, "Ubuntu") {
-		return &osType.Ubuntu{}
+		return &osType.Ubuntu{}, err
 	}
 
 	if err := client.Run([]string{"ls /etc/centos-release"}); err == nil {
-		return &osType.Centos{}
+		return &osType.Centos{}, err
 	}
 
 	if err := client.Run([]string{"ls /etc/redhat-release"}); err == nil {
-		return &osType.Centos{}
+		return &osType.Centos{}, err
 	}
 
-	return nil
+	return &osType.Unknown{}, errors.New("unknown os type")
 }
 
 func (n *Node) sshClient() *sshclient.SSHConnection {

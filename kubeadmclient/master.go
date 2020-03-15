@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/debarshibasak/go-kubeadmclient/sshclient"
 	"github.com/google/uuid"
@@ -27,16 +27,34 @@ func NewMasterNode(username string, ipOrHost string, privateKeyLocation string) 
 	}
 }
 
-func (n *MasterNode) changePermissionKubeconfig() error {
-	return n.run("sudo chown $USER:$USER /etc/kubernetes/admin.conf")
+func (n *MasterNode) getAllWorkerNodeNames() ([]string, error) {
+	var hostnames []string
+
+	out, err := n.sshClientWithTimeout(1 * time.Minute).Collect(`sudo KUBECONFIG=/etc/kubernetes/admin.conf kubectl get nodes --selector="node-type=worker"`)
+	if err != nil {
+		return hostnames, errors.New("error while fetching list")
+	}
+
+	for _, hostname := range strings.Split(strings.TrimSpace(out), "\n") {
+		trueHostName := strings.TrimSpace(strings.Split(hostname, " ")[0])
+		if trueHostName != "NAME" && trueHostName != "" {
+			hostnames = append(hostnames, trueHostName)
+		}
+	}
+
+	return hostnames, nil
+}
+
+func (n *MasterNode) getMaster() error {
+	return n.run("sudo KUBECONFIG=/etc/kubernetes/admin.conf kubectl get nodes --selector='node-role.kubernetes.io/master='")
 }
 
 func (n *MasterNode) taintAsMaster() error {
-	return n.run("KUBECONFIG=/etc/kubernetes/admin.conf kubectl taint nodes --selector=kubernetes.io/hostname=`hostname` node-role.kubernetes.io/master-")
+	return n.run("sudo KUBECONFIG=/etc/kubernetes/admin.conf kubectl taint nodes --selector=kubernetes.io/hostname=`hostname` node-role.kubernetes.io/master-")
 }
 
 func (n *MasterNode) applyFile(file string) error {
-	return n.run("KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f " + file)
+	return n.run("sudo KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f " + file)
 }
 
 func (n *MasterNode) getToken() (string, error) {
@@ -67,11 +85,37 @@ func (n *MasterNode) run(shell string) error {
 }
 
 func (n *MasterNode) ctlCommand(cmd string) error {
-	return n.run("KUBECONFIG=/etc/kubernetes/admin.conf " + cmd)
+	return n.run("sudo KUBECONFIG=/etc/kubernetes/admin.conf " + cmd)
+}
+
+func (n *MasterNode) ctlCommandCollect(cmd string) (string, error) {
+	return n.sshClient().Collect("sudo KUBECONFIG=/etc/kubernetes/admin.conf " + cmd)
 }
 
 func (n *MasterNode) getKubeConfig() (string, error) {
 	return n.sshClient().Collect("sudo cat /etc/kubernetes/admin.conf")
+}
+
+type IPHost struct {
+	IP   string
+	Host string
+}
+
+func (n *MasterNode) getAllMasterNodeNames() ([]string, error) {
+	var hostnames []string
+	out, err := n.sshClientWithTimeout(1 * time.Minute).Collect(`sudo KUBECONFIG=/etc/kubernetes/admin.conf kubectl get nodes --selector="node-role.kubernetes.io/master="`)
+	if err != nil {
+		return hostnames, errors.New("error while fetching list")
+	}
+
+	for _, hostname := range strings.Split(strings.TrimSpace(out), "\n") {
+		trueHostName := strings.TrimSpace(strings.Split(hostname, " ")[0])
+		if trueHostName != "NAME" && trueHostName != "" {
+			hostnames = append(hostnames, trueHostName)
+		}
+	}
+
+	return hostnames, nil
 }
 
 func (n *MasterNode) getJoinCommand() (string, error) {
@@ -80,13 +124,12 @@ func (n *MasterNode) getJoinCommand() (string, error) {
 
 func (n *MasterNode) installAndFetchCommand(kubeadm Kubeadm, vip string) (string, error) {
 
-	osType := n.determineOS()
-
-	if osType == nil {
-		return "", errors.New("ostpye not found")
+	osType, err := n.determineOS()
+	if err != nil {
+		return "", err
 	}
 
-	err := n.sshClient().Run(osType.Commands())
+	err = n.sshClient().Run(osType.Commands())
 	if err != nil {
 		return "", err
 	}
@@ -107,9 +150,12 @@ func (n *MasterNode) installAndFetchCommand(kubeadm Kubeadm, vip string) (string
 
 func (n *MasterNode) install(kubeadm Kubeadm, availability *highAvailability) error {
 
-	osType := n.determineOS()
+	osType, err := n.determineOS()
+	if err != nil {
+		return err
+	}
 
-	err := n.sshClientWithTimeout(30 * time.Minute).Run(osType.Commands())
+	err = n.sshClientWithTimeout(30 * time.Minute).Run(osType.Commands())
 	if err != nil {
 		return err
 	}
@@ -123,6 +169,14 @@ func (n *MasterNode) install(kubeadm Kubeadm, availability *highAvailability) er
 	}
 
 	return n.sshClientWithTimeout(30 * time.Minute).Run([]string{s})
+}
+
+func (n *MasterNode) deleteNode(hostname string) error {
+	return n.ctlCommand("kubectl delete node " + hostname)
+}
+
+func (n *MasterNode) reset() error {
+	return n.ctlCommand("kubeadm reset -f")
 }
 
 func getControlPlaneJoinCommand(data string) string {

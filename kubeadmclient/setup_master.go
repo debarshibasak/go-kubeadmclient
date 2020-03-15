@@ -52,11 +52,6 @@ func (k *Kubeadm) setupHAMaster(vip string) (string, error) {
 		}
 	}
 
-	err = primaryMaster.changePermissionKubeconfig()
-	if err != nil {
-		return "", err
-	}
-
 	err = primaryMaster.taintAsMaster()
 	if err != nil {
 		return "", err
@@ -82,10 +77,10 @@ func (k *Kubeadm) setupNonHAMaster() (string, error) {
 		return "", err
 	}
 
-	err = masterNode.changePermissionKubeconfig()
-	if err != nil {
-		return "", err
-	}
+	//err = masterNode.changePermissionKubeconfig()
+	//if err != nil {
+	//	return "", err
+	//}
 
 	err = masterNode.taintAsMaster()
 	if err != nil {

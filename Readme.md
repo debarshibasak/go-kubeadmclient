@@ -4,9 +4,10 @@
 
 Golang SDK for creating kubernetes clusters. Operations that are currently supported are -
 
-- Create Cluster
+- Create cluster
 - Add nodes
 - Remove nodes
+- Delete cluster
  
 The library automatically detects the operating system 
 and then perform the operation for that particular os.
@@ -87,12 +88,21 @@ please create a github issue.
 - cli for creating cluster
 - More structure approach towards CNI, pod cidrs, service cidrs, dns domains etc.
 
+OS / Version | -- | --
+------------ | -------------| -------------
+Ubuntu |Centos| Redhat
+ + 18.04 | ! 7.x| n/a
+ + 16.04 | ! 8.x| 
+
 #### Roadmap
 - Testing this orchestration on centos, redhat
-- Add Support for offline installation
 - Add Support for remove node
 - Add support for delete cluster
 - Smart use MaxSession from ssh_config to buffer adding nodes
+- Add docker daemon options like insecure registries etc.
+- Add option to install docker-ee
+- Add Support for offline installation
+- Add Support for waiting till nodes are ready
 
 #### Supporting this project
 - I need funding for testing this project

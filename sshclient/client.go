@@ -188,7 +188,10 @@ func (sh *SSHConnection) Run(cmd []string) error {
 		writeCloudInfoOut, err := session.Output(fmt.Sprintf("sh -c '%v'", ln))
 		if err != nil {
 			session.Close()
-			log.Println(string(writeCloudInfoOut))
+
+			if sh.VerboseMode {
+				log.Println(string(writeCloudInfoOut))
+			}
 			return err
 		}
 

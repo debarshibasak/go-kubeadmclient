@@ -3,8 +3,9 @@ package kubeadmclient
 import (
 	"log"
 
+	"errors"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
-	"github.com/pkg/errors"
 )
 
 //Reference - https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta1
@@ -18,17 +19,18 @@ const (
 )
 
 type Kubeadm struct {
-	ClusterName       string
-	MasterNodes       []*MasterNode
-	WorkerNodes       []*WorkerNode
-	HaProxyNode       *HaProxyNode
-	ApplyFiles        []string
-	PodNetwork        string
-	ServiceNetwork    string
-	DNSDomain         string
-	VerboseMode       bool
-	Netorking         *networking.Networking
-	SkipWorkerFailure bool
+	ClusterName          string
+	MasterNodes          []*MasterNode
+	WorkerNodes          []*WorkerNode
+	HaProxyNode          *HaProxyNode
+	ApplyFiles           []string
+	PodNetwork           string
+	ServiceNetwork       string
+	DNSDomain            string
+	VerboseMode          bool
+	Networking           *networking.Networking
+	SkipWorkerFailure    bool
+	ResetOnDeleteCluster bool
 }
 
 func (k *Kubeadm) GetKubeConfig() (string, error) {
@@ -44,6 +46,33 @@ func (k *Kubeadm) determineSetup() Setup {
 	}
 
 	return UNKNOWN
+}
+
+func (k *Kubeadm) deleteNodes(nodelist []string) error {
+
+	if len(nodelist) > 0 {
+		var errC = make(chan error, len(nodelist))
+		for i, node := range nodelist {
+			go func(node string, index int) {
+				errC <- k.MasterNodes[0].deleteNode(node)
+
+				if index == len(nodelist)-1 {
+					close(errC)
+				}
+			}(node, i)
+		}
+
+		for e := range errC {
+			if e != nil {
+				log.Println("error - " + e.Error())
+				if !k.SkipWorkerFailure {
+					return e
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func (k *Kubeadm) validateAndUpdateDefault() error {
@@ -71,7 +100,7 @@ func (k *Kubeadm) validateAndUpdateDefault() error {
 	return nil
 }
 
-func (k *Kubeadm) workerErrorManager(errc chan *workerError) error {
+func (k *Kubeadm) workerErrorManager(errc chan workerError) error {
 	for errWorker := range errc {
 		if errWorker.err != nil {
 			if errWorker.err == errWhileAddWorker {

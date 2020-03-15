@@ -14,27 +14,27 @@ import (
 func CreateClusterExampleNonHA() {
 	//Create clusters with only master machine
 	k := kubeadmclient.Kubeadm{
-
+		ClusterName: "testcluster",
 		MasterNodes: []*kubeadmclient.MasterNode{
 			kubeadmclient.NewMasterNode(
 				"ubuntu",
-				"192.168.64.51",
+				"192.168.64.4",
 				"/Users//.ssh/id_rsa",
 			),
 		},
 		WorkerNodes: []*kubeadmclient.WorkerNode{
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.55",
+				"192.168.64.5",
 				"/Users//.ssh/id_rsa",
 			),
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.56",
+				"192.168.64.6",
 				"/Users//.ssh/id_rsa",
 			),
 		},
-		Netorking:   networking.Flannel,
+		Networking:  networking.Flannel,
 		VerboseMode: false,
 	}
 
@@ -84,7 +84,7 @@ func CreateClusterExampleHA() {
 				"/Users//.ssh/id_rsa",
 			),
 		},
-		Netorking:   networking.Flannel,
+		Networking:  networking.Flannel,
 		VerboseMode: false,
 	}
 

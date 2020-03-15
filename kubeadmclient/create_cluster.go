@@ -62,9 +62,9 @@ func (k *Kubeadm) CreateCluster() error {
 		}
 	}
 
-	if k.Netorking != nil {
-		log.Printf("installing networking plugin = %v", k.Netorking.Name)
-		err := k.MasterNodes[0].applyFile(k.Netorking.Manifests)
+	if k.Networking != nil {
+		log.Printf("installing networking plugin = %v", k.Networking.Name)
+		err := k.MasterNodes[0].applyFile(k.Networking.Manifests)
 		if err != nil {
 			return err
 		}

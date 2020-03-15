@@ -6,8 +6,11 @@ import (
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 )
 
-func TestKubeadm_AddNode(t *testing.T) {
+func TestKubeadm_DeleteCluster(t *testing.T) {
 	k := kubeadmclient.Kubeadm{
+
+		ClusterName: "testcluster",
+
 		MasterNodes: []*kubeadmclient.MasterNode{
 			kubeadmclient.NewMasterNode(
 				"ubuntu",
@@ -18,14 +21,21 @@ func TestKubeadm_AddNode(t *testing.T) {
 		WorkerNodes: []*kubeadmclient.WorkerNode{
 			kubeadmclient.NewWorkerNode(
 				"ubuntu",
-				"192.168.64.29",
+				"192.168.64.27",
+				"/Users/debarshibasak/.ssh/id_rsa",
+			),
+			kubeadmclient.NewWorkerNode(
+				"ubuntu",
+				"192.168.64.28",
 				"/Users/debarshibasak/.ssh/id_rsa",
 			),
 		},
-		SkipWorkerFailure: true,
+		ResetOnDeleteCluster: true,
+		SkipWorkerFailure:    true,
+		VerboseMode:          false,
 	}
 
-	err := k.AddNode()
+	err := k.DeleteCluster()
 	if err != nil {
 		t.Fatal(err)
 	}

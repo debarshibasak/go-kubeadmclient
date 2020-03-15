@@ -51,7 +51,10 @@ backend k8s-api
 
 func (n *HaProxyNode) install(masterIPs []string) error {
 
-	osType := n.determineOS()
+	osType, err := n.determineOS()
+	if err != nil {
+		return err
+	}
 
 	if err := n.sshClientWithTimeout(20 * time.Minute).Run(osType.InstallDocker()); err != nil {
 		return err
@@ -69,7 +72,7 @@ func (n *HaProxyNode) install(masterIPs []string) error {
 		return err
 	}
 
-	_, err := n.sshClientWithTimeout(20 * time.Minute).Collect("sudo docker run -d --network=host -it --restart=always -v /usr/local/etc/haproxy/:/usr/local/etc/haproxy/:ro --name kubernetes-apiserver-haproxy haproxy:1.7")
+	_, err = n.sshClientWithTimeout(20 * time.Minute).Collect("sudo docker run -d --network=host -it --restart=always -v /usr/local/etc/haproxy/:/usr/local/etc/haproxy/:ro --name kubernetes-apiserver-haproxy haproxy:1.7")
 	if err != nil {
 		return err
 	}
