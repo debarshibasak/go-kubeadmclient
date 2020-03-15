@@ -72,6 +72,11 @@ The example requires an existing master that is setup and list of worker. The au
 if you want to remove node from an existing cluster follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/remove_node_example.go)
 This example requires an existing cluster, access to master node and list of workers that has to be removed.
 
+#### Deleteing cluster
+If you want to delete a cluster provisioned by this orchestration, you can follow this [example](https://github.com/debarshibasak/go-kubeadmclient/blob/master/examples/delete_cluster_example.go)
+This example requires access to one of the master to delete nodes, but you would need details of all the nodes if you want to reset the nodes.
+If you want to delete an existing cluster label the worker nodes as `node-type="worker"`, and they will be picked up for deletion.
+
 ### Projects that use go-kubeadmclient
 - [Kubestrike](https://github.com/debarshibasak/kubestrike)
 
