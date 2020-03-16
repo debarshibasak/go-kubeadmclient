@@ -68,6 +68,8 @@ func (k *Kubeadm) CreateCluster() error {
 		if err != nil {
 			return err
 		}
+	} else {
+		log.Println("no network plugin found")
 	}
 
 	log.Printf("Time taken to create cluster %v\n", time.Since(startTime).String())
