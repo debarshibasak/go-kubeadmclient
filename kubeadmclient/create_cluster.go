@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 )
 
 // CreateCluster will take the incoming Kubeadm struct.

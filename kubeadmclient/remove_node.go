@@ -3,6 +3,7 @@ package kubeadmclient
 import (
 	"errors"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -26,32 +27,25 @@ func (k *Kubeadm) RemoveNode() error {
 		return errNoMasterForRemoveNode
 	}
 
-	errc := make(chan workerError, len(k.WorkerNodes))
 	var hostnames []string
+	var wg sync.WaitGroup
 
 	for i, worker := range k.WorkerNodes {
 
-		go func(worker *WorkerNode, i int, errc chan workerError) {
+		go func(worker *WorkerNode, i int, wg *sync.WaitGroup) {
 			hostname, err := worker.drainAndReset()
-			errc <- workerError{
-				worker: worker,
-				err:    err,
+			if err != nil {
+				if !k.SkipWorkerFailure {
+					log.Fatal(err)
+				}
+				log.Println(err)
 			}
 
 			if hostname != "" {
 				hostnames = append(hostnames, hostname)
 			}
 
-			if i == len(k.WorkerNodes)-1 {
-				close(errc)
-			}
-
-		}(worker, i, errc)
-	}
-
-	e := k.workerErrorManager(errc)
-	if e != nil {
-		return e
+		}(worker, i, &wg)
 	}
 
 	for _, hostname := range hostnames {

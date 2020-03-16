@@ -1,7 +1,7 @@
 package kubeadmclient
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 )
 
 var (
