@@ -10,6 +10,9 @@ import (
 )
 
 func TestKubeadm_CreateClusterHA(t *testing.T) {
+
+	t.SkipNow()
+
 	k := kubeadmclient.Kubeadm{
 
 		ClusterName: "testcluster",
@@ -49,6 +52,8 @@ func TestKubeadm_CreateClusterHA(t *testing.T) {
 }
 
 func TestKubeadm_CreateCluster(t *testing.T) {
+
+	t.SkipNow()
 
 	k := kubeadmclient.Kubeadm{
 

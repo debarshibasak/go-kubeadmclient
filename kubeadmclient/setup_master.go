@@ -4,16 +4,24 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	errCouldNotDetermineSetup = errors.New("setup could not be determined")
+)
+
 func (k *Kubeadm) setupMaster(setup Setup) (string, error) {
 
-	var joinCommand string
-	var err error
+	var (
+		joinCommand string
+		err         error
+	)
+
 	if setup == NONHA {
 		joinCommand, err = k.setupNonHAMaster()
 		if err != nil {
 			return "", err
 		}
 	}
+
 	if setup == HA {
 
 		if k.HaProxyNode == nil {
@@ -29,6 +37,10 @@ func (k *Kubeadm) setupMaster(setup Setup) (string, error) {
 		if err != nil {
 			return "", err
 		}
+	}
+
+	if setup == UNKNOWN {
+		return "", errCouldNotDetermineSetup
 	}
 	return joinCommand, nil
 }
@@ -76,11 +88,6 @@ func (k *Kubeadm) setupNonHAMaster() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	//err = masterNode.changePermissionKubeconfig()
-	//if err != nil {
-	//	return "", err
-	//}
 
 	err = masterNode.taintAsMaster()
 	if err != nil {

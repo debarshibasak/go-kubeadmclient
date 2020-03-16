@@ -7,6 +7,8 @@ import (
 )
 
 func TestKubeadm_DeleteCluster(t *testing.T) {
+	t.SkipNow()
+
 	k := kubeadmclient.Kubeadm{
 
 		ClusterName: "testcluster",

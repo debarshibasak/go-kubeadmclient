@@ -7,6 +7,8 @@ import (
 )
 
 func TestKubeadm_AddNode(t *testing.T) {
+
+	t.SkipNow()
 	k := kubeadmclient.Kubeadm{
 		MasterNodes: []*kubeadmclient.MasterNode{
 			kubeadmclient.NewMasterNode(
