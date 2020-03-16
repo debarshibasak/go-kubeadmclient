@@ -1,3 +1,0 @@
-#!/bin/bash
-echo "code analysis"
-revive -config ./revive.toml -formatter friendly -exclude ./vendor/... ./...
