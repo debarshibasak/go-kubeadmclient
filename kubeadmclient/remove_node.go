@@ -32,7 +32,10 @@ func (k *Kubeadm) RemoveNode() error {
 
 	for i, worker := range k.WorkerNodes {
 
+		wg.Add(1)
+
 		go func(worker *WorkerNode, i int, wg *sync.WaitGroup) {
+			defer wg.Done()
 			hostname, err := worker.drainAndReset()
 			if err != nil {
 				if !k.SkipWorkerFailure {
@@ -47,6 +50,8 @@ func (k *Kubeadm) RemoveNode() error {
 
 		}(worker, i, &wg)
 	}
+
+	wg.Wait()
 
 	for _, hostname := range hostnames {
 		if err := k.MasterNodes[0].deleteNode(hostname); err != nil {
