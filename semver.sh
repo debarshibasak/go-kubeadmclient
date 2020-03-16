@@ -51,4 +51,5 @@ then
 fi
 
 git tag "${a[0]}.${a[1]}.${a[2]}"
+git push --tags
 echo "${a[0]}.${a[1]}.${a[2]}"
