@@ -56,6 +56,7 @@ func (k *Kubeadm) deleteNodes(nodelist []string) error {
 		for _, node := range nodelist {
 			wg.Add(1)
 			go func(node string, wg *sync.WaitGroup) {
+				defer wg.Done()
 				if err := k.MasterNodes[0].deleteNode(node); err != nil {
 					if !k.SkipWorkerFailure {
 						log.Fatal(err)
