@@ -2,6 +2,7 @@ package kubeadmclient
 
 import (
 	"log"
+	"sync"
 
 	"errors"
 
@@ -50,28 +51,24 @@ func (k *Kubeadm) determineSetup() Setup {
 
 func (k *Kubeadm) deleteNodes(nodelist []string) error {
 
+	var wg sync.WaitGroup
 	if len(nodelist) > 0 {
-		var errC = make(chan error, len(nodelist))
-		for i, node := range nodelist {
-			go func(node string, index int) {
-				errC <- k.MasterNodes[0].deleteNode(node)
+		for _, node := range nodelist {
+			wg.Add(1)
+			go func(node string, wg *sync.WaitGroup) {
+				defer wg.Done()
+				if err := k.MasterNodes[0].deleteNode(node); err != nil {
+					if !k.SkipWorkerFailure {
+						log.Fatal(err)
+					}
 
-				if index == len(nodelist)-1 {
-					close(errC)
+					log.Println(err)
 				}
-			}(node, i)
-		}
 
-		for e := range errC {
-			if e != nil {
-				log.Println("error - " + e.Error())
-				if !k.SkipWorkerFailure {
-					return e
-				}
-			}
+			}(node, &wg)
 		}
 	}
-
+	wg.Wait()
 	return nil
 }
 
@@ -97,22 +94,5 @@ func (k *Kubeadm) validateAndUpdateDefault() error {
 		k.DNSDomain = "cluster.local"
 	}
 
-	return nil
-}
-
-func (k *Kubeadm) workerErrorManager(errc chan workerError) error {
-	for errWorker := range errc {
-		if errWorker.err != nil {
-			if errWorker.err == errWhileAddWorker {
-				errWrk := errors.New("worker=" + errWorker.worker.ipOrHost + "err=" + errWorker.err.Error())
-				if !k.SkipWorkerFailure {
-					return errWrk
-				}
-				log.Println(errWrk.Error() + " however, skipping this error")
-			} else {
-				return errWorker.err
-			}
-		}
-	}
 	return nil
 }

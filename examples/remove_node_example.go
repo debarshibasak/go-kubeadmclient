@@ -4,6 +4,7 @@ package examples
 import (
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
+	"github.com/prometheus/common/log"
 )
 
 // This is an example for removing node from an existing cluster.
@@ -41,6 +42,6 @@ func RemoveNodeExample() {
 	}
 
 	if err := k.RemoveNode(); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 }

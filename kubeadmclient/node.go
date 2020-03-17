@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	osType "github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ostype"
 

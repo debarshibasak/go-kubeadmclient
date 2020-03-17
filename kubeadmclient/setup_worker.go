@@ -1,33 +1,34 @@
 package kubeadmclient
 
 import (
-	"github.com/pkg/errors"
+	"log"
+	"sync"
+
+	"errors"
 )
 
 var errWhileAddWorker = errors.New("error while adding worker")
 
-type workerError struct {
-	worker *WorkerNode
-	err    error
-}
-
 func (k *Kubeadm) setupWorkers(joinCommand string) error {
-	errc := make(chan workerError)
 
+	var wg sync.WaitGroup
 	if len(k.WorkerNodes) > 0 {
 		for i, workerNode := range k.WorkerNodes {
-
-			go func(node *WorkerNode, i int) {
+			wg.Add(1)
+			go func(node *WorkerNode, i int, wg *sync.WaitGroup) {
+				defer wg.Done()
 				err := node.install(joinCommand)
-				errc <- workerError{worker: node, err: err}
-
-				if i == len(k.WorkerNodes)-1 {
-					close(errc)
+				if err != nil {
+					if !k.SkipWorkerFailure {
+						log.Fatal(err)
+					}
+					log.Println(err)
 				}
-
-			}(workerNode, i)
+			}(workerNode, i, &wg)
 		}
 	}
 
-	return k.workerErrorManager(errc)
+	wg.Wait()
+
+	return nil
 }
