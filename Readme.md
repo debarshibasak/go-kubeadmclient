@@ -1,8 +1,6 @@
 # go-kubeadmclient
 
-[![CodeFactor](https://www.codefactor.io/repository/github/debarshibasak/go-kubeadmclient/badge)](https://www.codefactor.io/repository/github/debarshibasak/go-kubeadmclient)
-
-[![CircleCI](https://circleci.com/gh/debarshibasak/go-kubeadmclient.svg?style=svg)](https://circleci.com/gh/debarshibasak/go-kubeadmclient)
+[![CodeFactor](https://www.codefactor.io/repository/github/debarshibasak/go-kubeadmclient/badge)](https://www.codefactor.io/repository/github/debarshibasak/go-kubeadmclient) [![CircleCI](https://circleci.com/gh/debarshibasak/go-kubeadmclient.svg?style=svg)](https://circleci.com/gh/debarshibasak/go-kubeadmclient)
 
 ### What is go-kubeadmclient?
 
