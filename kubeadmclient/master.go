@@ -32,7 +32,7 @@ func (n *MasterNode) getAllWorkerNodeNames() ([]string, error) {
 
 	out, err := n.sshClientWithTimeout(1 * time.Minute).Collect(`sudo KUBECONFIG=/etc/kubernetes/admin.conf kubectl get nodes --selector="node-type=worker"`)
 	if err != nil {
-		return hostnames, errors.New("error while fetching worker node list")
+		return hostnames, errors.New("error while fetching worker node list - " + err.Error())
 	}
 
 	for _, hostname := range strings.Split(strings.TrimSpace(out), "\n") {
