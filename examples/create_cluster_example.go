@@ -68,6 +68,7 @@ func CreateClusterExampleHA() {
 				"/Users//.ssh/id_rsa",
 			),
 		},
+		//HA Proxy is automatically provisioned
 		HaProxyNode: kubeadmclient.NewHaProxyNode("ubuntu",
 			"192.168.64.54",
 			"/Users//.ssh/id_rsa",
