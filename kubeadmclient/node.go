@@ -7,9 +7,9 @@ import (
 
 	"errors"
 
-	osType "github.com/debarshibasak/go-kubeadmclient/kubeadmclient/ostype"
+	osType "github.com/debarshibasak/machina/ostype"
 
-	"github.com/debarshibasak/go-kubeadmclient/sshclient"
+	"github.com/debarshibasak/machina/sshclient"
 )
 
 type Node struct {

@@ -8,7 +8,7 @@ import (
 
 	"errors"
 
-	"github.com/debarshibasak/go-kubeadmclient/sshclient"
+	"github.com/debarshibasak/machina/sshclient"
 	"github.com/google/uuid"
 )
 
