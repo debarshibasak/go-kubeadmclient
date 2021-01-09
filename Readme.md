@@ -14,7 +14,7 @@ Golang SDK for creating kubernetes clusters. Operations that are currently suppo
 The library automatically detects the operating system 
 and then perform the operation for that particular os.
 
-### Why is go-kubeadmclient?
+### What is go-kubeadmclient?
 
 Currently the only way to manage cluster operation on-prem/VM/baremetal machines are using custom ansible script or using kubespray.
 `go-kubeadmclient` empowers you with a sdk to create cluster so that you can build your clusters based on logic/workflow etc. 
